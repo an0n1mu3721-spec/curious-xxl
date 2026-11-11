@@ -1,0 +1,12 @@
+# bouwresultaten
+macos/build/
+windows/dist/
+windows/node_modules/
+windows/index.html
+windows/CURIOUS XXL - Handleiding.pdf
+docs/handleiding/shots/
+docs/handleiding/*.html
+docs/handleiding/*.pdf
+# systeem
+.DS_Store
+Thumbs.db

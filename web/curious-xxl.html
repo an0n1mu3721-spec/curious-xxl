@@ -1,0 +1,1248 @@
+<title>CURIOUS XXL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+/* Layout: zendpult — filters links, catalogus midden, uurklok rechts, voorluisterbalk onderaan; op telefoon onder elkaar */
+:root{
+  --bg:#EEF0F3; --panel:#FFFFFF; --line:#D7DBE2; --ink:#18202C; --muted:#5D6778;
+  --accent:#B4520F; --accent-soft:#F7E5D6; --onair:#C2263A; --ok:#2F7D5B; --warn:#A86A00;
+  --m-energiek:#D9482B; --m-vrolijk:#D9A21B; --m-feestelijk:#8A4FC9; --m-zonnig:#E8822A;
+  --m-stoer:#6B6F78; --m-spannend:#9E2B3C; --m-relaxed:#3C8C86; --m-dromerig:#6FA3D6;
+  --m-ingetogen:#8C9A7A; --m-romantisch:#C2508A; --m-melancholisch:#4F5FA8; --m-nostalgisch:#A07850; --m-open:#9AA3B2;
+  --f-display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10151D; --panel:#18202B; --line:#2B3544; --ink:#E7EAF0; --muted:#97A1B2;
+  --accent:#F0954A; --accent-soft:#3A2818; --onair:#FF5A6E; --ok:#5CC498; --warn:#E5B148; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10151D; --panel:#18202B; --line:#2B3544; --ink:#E7EAF0; --muted:#97A1B2;
+  --accent:#F0954A; --accent-soft:#3A2818; --onair:#FF5A6E; --ok:#5CC498; --warn:#E5B148; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+.wrap{max-width:1440px;margin:0 auto;display:grid;gap:16px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+.brand{display:flex;align-items:center;gap:12px}
+.onair{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--onair);padding:4px 8px;border-radius:3px}
+h1{font-size:clamp(26px,3.4vw,38px);font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:62ch;margin-top:4px}
+.demo{font-family:var(--f-mono);font-size:12px;color:var(--warn);border:1px dashed var(--warn);padding:6px 10px;border-radius:4px}
+.demo.live{color:var(--ok);border-color:var(--ok)}
+.stats{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.stats b{display:block;font-family:var(--f-display);font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+.source{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:12px 16px}
+.source.drag{border-color:var(--accent);background:var(--accent-soft)}
+.source.save{border-style:solid}
+.btn:disabled{opacity:.5;cursor:progress}
+.source p{margin:0;color:var(--muted);font-size:13px;flex:1 1 280px}
+.source .status{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;flex:1 1 140px;max-width:220px}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+
+.grid{display:grid;grid-template-columns:240px minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:1150px){.grid{grid-template-columns:minmax(0,1fr) 340px}.filters{grid-column:1/-1}}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.label{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+
+.filters{display:grid;gap:18px}
+@media (max-width:1150px){.filters{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font:500 12.5px var(--f-body);border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 9px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip small{font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.chip[aria-pressed="true"] small{color:var(--panel)}
+.sublabel{font-size:11px;color:var(--muted);margin:8px 0 4px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+input[type=search],input[type=date],input[type=time],select{width:100%;font:14px var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer}
+
+.cat-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cat-head .count{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.tablewrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:8px;border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none;padding-inline:7px}
+th[data-sort]:hover{color:var(--accent)}
+td{padding:9px 7px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.in td{background:var(--accent-soft)}
+tr.playing td:first-child{box-shadow:inset 3px 0 0 var(--onair)}
+.nr{display:flex;align-items:center;gap:10px}
+.t-title{font-weight:600}
+.t-artist{color:var(--muted);font-size:13px}
+.num{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mood{display:inline-flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+.tag{font-size:12px;color:var(--muted)}
+.use{display:flex;align-items:center;gap:8px}
+.bars{display:flex;gap:2px;align-items:flex-end;height:16px}
+.bars i{width:3px;background:var(--line);border-radius:1px}
+.bars i.on{background:var(--accent)}
+.rest{font-family:var(--f-mono);font-size:11px;padding:2px 6px;border-radius:3px;white-space:nowrap;border:1px solid currentColor}
+.rest.fresh{color:var(--ok)} .rest.recent{color:var(--onair)} .rest.mid{color:var(--warn)}
+.add,.play{font:600 16px var(--f-body);width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;line-height:1;flex:none;display:inline-grid;place-items:center}
+.add:hover,.play:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.play{border-radius:50%;font-size:11px}
+.play:disabled{opacity:.35;cursor:not-allowed}
+.play.on{background:var(--onair);border-color:var(--onair);color:#fff}
+tr.in .add{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.more{display:flex;justify-content:center;padding-top:12px}
+
+.builder{position:sticky;top:max(16px,env(safe-area-inset-top,0px));display:grid;gap:14px}
+.clock{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center}
+.clock svg{width:150px;height:150px;max-width:100%}
+.clock .big{font-family:var(--f-display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.small{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.budget{display:grid;gap:4px}
+.budget input{width:100%;accent-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{font:600 13px var(--f-body);padding:9px 12px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+ol.run{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:360px;overflow-y:auto}
+ol.run li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line)}
+ol.run .time{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.run .name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+ol.run .name b{font-weight:600}
+ol.run .ctl{display:flex;gap:2px}
+ol.run .ctl button{width:26px;height:26px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;font-size:12px}
+ol.run .ctl button:hover:not(:disabled){color:var(--accent);background:var(--accent-soft)}
+ol.run .ctl button:disabled{opacity:.3}
+.empty{color:var(--muted);font-size:13px;padding:10px 0}
+.note{font-size:12px;color:var(--muted);margin:0}
+textarea.copy{width:100%;height:120px;font:12px var(--f-mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.08);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player .in{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1.2fr) minmax(0,2fr) auto;gap:14px;align-items:center}
+@media (max-width:820px){.player .in{grid-template-columns:auto minmax(0,1fr) auto}.player .seek{grid-column:1/-1;order:5}}
+.pp{width:44px;height:44px;border-radius:50%;border:0;background:var(--onair);color:#fff;font-size:15px;cursor:pointer}
+.pinfo{min-width:0}
+.pinfo b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pinfo span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.seek{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.seek input{width:100%;accent-color:var(--onair)}
+.cues{display:flex;gap:6px;flex-wrap:wrap}
+.cues button{font:500 12px var(--f-body);padding:6px 9px;border-radius:5px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.cues button:hover{border-color:var(--onair);color:var(--onair)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+.src{font-size:11px;color:var(--muted);margin-left:2px}
+.legend{font-size:12px;color:var(--muted)}
+.cellbtns{display:flex;gap:4px}
+.edit{font-size:13px}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);padding:0;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
+dialog::backdrop{background:rgba(10,14,20,.45)}
+dialog form{display:grid;gap:14px;padding:20px;overflow-y:auto;max-height:calc(100vh - 48px)}
+dialog .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+dialog input[type=text],dialog input[type=number]{width:100%;font:14px var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+dialog label.f{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;align-items:center;gap:5px;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;cursor:pointer}
+.checks input{accent-color:var(--accent)}
+.dlgbtns{display:flex;justify-content:flex-end;gap:8px}
+h1 .xxl{color:var(--accent)}
+.flash{animation:flash 1.6s ease-out 1}
+@keyframes flash{0%,40%{box-shadow:0 0 0 3px var(--accent),0 0 28px 4px color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+.aboutlink{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:4px}
+button.aboutlink{background:transparent;cursor:pointer}
+.aboutlink:hover{color:var(--accent);border-color:var(--accent)}
+footer.about{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px;display:grid;gap:16px;margin-top:8px}
+.about-id{display:flex;align-items:center;gap:12px}
+.about-id b{display:block;font-family:var(--f-display);font-size:20px}
+.about-id span:not(.onair){font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 24px;margin:0}
+.about-grid dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.about-grid dd{margin:0;font-size:14px}
+.about-grid a{color:var(--accent)}
+.about-note{margin:0;font-size:13px;color:var(--muted);max-width:90ch;border-top:1px solid var(--line);padding-top:12px}
+.about-note b{color:var(--ink)}
+.meter{display:inline-flex;gap:1px;align-items:flex-end;height:14px;vertical-align:middle;margin-right:4px}
+.meter i{width:2.5px;border-radius:1px;background:var(--line)}
+.meter i.on{background:var(--accent)}
+.meter.hot i.on{background:var(--onair)}
+td.nrg{white-space:nowrap}
+.kchip{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.curve{display:grid;gap:4px}
+.curve svg{width:100%;height:54px;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+.shape{display:grid;gap:4px}
+ol.run .meta{display:block;font-size:10px;color:var(--accent);white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand"><span class="onair">On air</span><h1>CURIOUS <span class="xxl">XXL</span></h1></div>
+      <p class="sub">Zoek op genre, sfeer, dagdeel en speciale dag. Klik op een nummer om voor te luisteren en vul een programma-uur tot op de minuut.</p>
+    </div>
+    <div class="stats">
+      <div><b id="sTotal">0</b>nummers</div>
+      <div><b id="sShown">0</b>na filter</div>
+      <div><b id="sAudio">0</b>afspeelbaar</div>
+      <div><b id="sFresh">0</b>uitgerust (&gt;30 dagen)</div>
+      <span class="demo" id="demo">Voorbeelddata · koppel je map om te luisteren</span>
+      <button class="aboutlink" id="manualBtn" type="button" hidden title="Open de handleiding. De knoppen daarin sturen de app.">Handleiding ↗</button>
+      <a class="aboutlink" href="#sec-over">Over · © Han Koopman</a>
+    </div>
+  </header>
+
+  <section class="source" id="drop" aria-label="Muziek koppelen">
+    <button class="btn primary" type="button" id="pickDir">Koppel muziekmap</button>
+    <button class="btn" type="button" id="pickFiles">Kies losse bestanden</button>
+    <input type="file" id="inDir" class="sr" webkitdirectory directory multiple>
+    <input type="file" id="inFiles" class="sr" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac" multiple>
+    <p>Kies <b>/Users/Han/Music/MP3</b> of sleep de map hierheen. Alles blijft op je eigen computer; er wordt niets geüpload. Bekende nummers krijgen hun geluid, nieuwe bestanden komen erbij met hun eigen tags.</p>
+    <span class="status" id="status"></span>
+    <span class="progress" id="prog" hidden><i></i></span>
+  </section>
+
+  <section class="source save" id="sec-bewaren" aria-label="Bewaren">
+    <button class="btn primary" type="button" id="saveCat">Bewaar catalogus</button>
+    <button class="btn" type="button" id="expCsv">Exporteer voor Numbers of Excel</button>
+    <button class="btn" type="button" id="expJson">Back-up maken</button>
+    <button class="btn" type="button" id="impJson">Back-up terugzetten</button>
+    <input type="file" id="inJson" class="sr" accept=".json,application/json">
+    <button class="btn" type="button" id="impList">Speellijsten importeren</button>
+    <input type="file" id="inList" class="sr" accept=".m3u,.m3u8,.txt,.csv" multiple>
+    <span class="status" id="saveStatus">Opslag wordt gecontroleerd…</span>
+  </section>
+
+  <section class="source save" id="sec-indelen" aria-label="Indelen">
+    <button class="btn primary" type="button" id="refine">Verfijn indeling met Claude</button>
+    <button class="btn" type="button" id="refineStop" hidden>Pauzeer</button>
+    <p id="refineInfo">Nieuwe nummers krijgen direct een eerste indeling op genre en titel (≈). Claude verfijnt daarna sfeer, dagdelen, speciale dagen, jaar en tempo op basis van kennis van het nummer zelf (✦).</p>
+    <span class="status" id="refineStatus"></span>
+    <span class="progress" id="refineProg" hidden><i></i></span>
+  </section>
+
+  <div class="grid">
+    <aside class="panel filters" id="sec-filters" aria-label="Filters">
+      <div><p class="label">Zoeken</p><input id="q" type="search" placeholder="Titel of artiest"></div>
+      <div><p class="label">Dagdeel</p><div class="chips" id="fDaypart"></div></div>
+      <div><p class="label">Sfeer</p><div class="chips" id="fMood"></div></div>
+      <div><p class="label">Genre</p><div class="chips" id="fGenre"></div></div>
+      <div><p class="label">Decennium</p><div class="chips" id="fDecade"></div></div>
+      <div>
+        <p class="label">Speciale dag</p>
+        <p class="sublabel">Kalender</p><div class="chips" id="fCal"></div>
+        <p class="sublabel">Thema</p><div class="chips" id="fTheme"></div>
+      </div>
+      <div><p class="label">Duur</p><div class="chips" id="fDur"></div></div>
+      <div><p class="label">Energie</p><div class="chips" id="fNrg"></div></div>
+      <div>
+        <p class="label">Rotatie en mixen</p>
+        <div style="display:grid;gap:6px">
+          <label class="toggle"><input id="hideRecent" type="checkbox"> Verberg nummers van de laatste 14 dagen</label>
+          <label class="toggle"><input id="onlyAudio" type="checkbox"> Alleen nummers met geluid</label>
+          <label class="toggle"><input id="harm" type="checkbox"> Alleen toonsoorten die passen bij het laatste nummer in het uur</label>
+        </div>
+      </div>
+      <button class="btn" id="reset" type="button">Filters wissen</button>
+    </aside>
+
+    <section class="panel" id="sec-catalogus" aria-label="Catalogus">
+      <div class="cat-head"><h2 style="font-size:20px">Catalogus</h2><span class="legend">≈ geschat · ✦ door Claude · ✎ aanpassen</span><span class="count" id="count"></span></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th data-sort="title">Nummer</th>
+            <th data-sort="year">Jaar</th>
+            <th data-sort="dur">Duur</th>
+            <th data-sort="bpm" title="Tempo en toonsoort">BPM</th>
+            <th data-sort="nrg" title="Energie 1–10">Energie</th>
+            <th data-sort="mood">Sfeer</th>
+            <th>Dagdeel · dag</th>
+            <th data-sort="plays">Gedraaid</th>
+            <th data-sort="last">Laatst</th>
+            <th aria-label="Toevoegen"></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="more" id="more" hidden><button class="btn" type="button" id="moreBtn">Toon 200 meer</button></div>
+    </section>
+
+    <aside class="panel builder" id="sec-uur" aria-label="Programma-uur">
+      <div>
+        <p class="label">Programma-uur</p>
+        <div class="row2">
+          <input type="date" id="airDate" aria-label="Uitzenddatum">
+          <input type="time" id="airTime" value="09:00" step="3600" aria-label="Begintijd">
+        </div>
+        <div class="small" id="slotLabel" style="margin-top:6px"></div>
+      </div>
+      <div class="clock">
+        <svg viewBox="0 0 160 160" id="clockSvg" role="img" aria-label="Uurklok"></svg>
+        <div>
+          <div class="big" id="filled">0:00</div>
+          <div class="small" id="left">van 48:00 muziek</div>
+          <div class="small" id="avg" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="curve" id="curveBox" hidden><div class="small">Energieverloop</div><svg id="curve" viewBox="0 0 300 54" preserveAspectRatio="none" role="img" aria-label="Energieverloop van het uur"></svg></div>
+      <div class="shape">
+        <label class="small" for="shape">Opbouw van het uur</label>
+        <select id="shape">
+          <option value="vrij">Vrij: langst uitgerust eerst</option>
+          <option value="op">Opbouwen: rustig naar hoog</option>
+          <option value="piek">Piek in het midden</option>
+          <option value="af">Hoog beginnen, rustig afsluiten</option>
+          <option value="vlak">Gelijkmatig</option>
+        </select>
+      </div>
+      <div class="budget">
+        <label class="small" for="talk">Praat, jingles en reclame: <b id="talkV">12</b> min</label>
+        <input id="talk" type="range" min="0" max="30" value="12">
+      </div>
+      <div class="row2">
+        <button class="btn primary" id="fill" type="button">Vul aan met filters</button>
+        <button class="btn" id="clear" type="button">Uur leegmaken</button>
+      </div>
+      <ol class="run" id="run"></ol>
+      <button class="btn primary" id="zipMp3" type="button">Kopieer mp3's naar een map</button>
+      <p class="note" id="zipNote">De map krijgt de naam van de uitzenddag, bijvoorbeeld "Dinsdag 10 november 2026". Je originelen blijven staan.</p>
+      <button class="btn" id="copy" type="button">Kopieer draaiboek</button>
+      <textarea class="copy" id="copyArea" hidden readonly aria-label="Draaiboek als tekst"></textarea>
+      <div class="row2">
+        <button class="btn" id="saveHour" type="button">Bewaar dit uur</button>
+        <button class="btn" id="aired" type="button">Markeer als uitgezonden</button>
+      </div>
+      <select id="hours" aria-label="Bewaarde uren"><option value="">Bewaarde uren openen…</option></select>
+      <p class="note">"Markeer als uitgezonden" schrijft de datum van vandaag bij elk nummer in de speelhistorie. Daarna telt de rusttijd opnieuw.</p>
+    </aside>
+  </div>
+
+  <footer class="about" id="sec-over" aria-label="Over CURIOUS XXL">
+    <div class="about-id">
+      <span class="onair">On air</span>
+      <div><b>CURIOUS XXL</b><span>versie 1.1 · Radio Curious</span></div>
+    </div>
+    <dl class="about-grid">
+      <div><dt>Maker en eigenaar</dt><dd>Han Koopman<br>Radio Curious · Zeewolde</dd></div>
+      <div><dt>Website</dt><dd><a href="https://hankoopman.nl" target="_blank" rel="noopener">hankoopman.nl</a></dd></div>
+      <div><dt>Broncode</dt><dd><a href="https://github.com/an0n1mu3721-spec/curious-xxl" target="_blank" rel="noopener">github.com/an0n1mu3721-spec/curious-xxl</a></dd></div>
+      <div><dt>Rechten</dt><dd>© 2026 Han Koopman. Alle rechten voorbehouden.</dd></div>
+    </dl>
+    <p class="about-note"><b>Niet verspreiden zonder toestemming.</b> Kopiëren, doorgeven, aanpassen, publiceren of verkopen van deze app, de broncode of de handleiding mag alleen met schriftelijke toestemming van Han Koopman. Ook als de code op GitHub te zien is, geeft dat geen recht op gebruik of verspreiding. Vraag toestemming via hankoopman.nl. Gebouwd met hulp van Claude.</p>
+  </footer>
+</div>
+
+<div class="player" id="player" hidden>
+  <div class="in">
+    <button class="pp" id="pp" type="button" aria-label="Pauzeer">❚❚</button>
+    <div class="pinfo"><b id="pTitle"></b><span id="pArtist"></span></div>
+    <div class="seek">
+      <span class="small" id="pCur">0:00</span>
+      <input type="range" id="pSeek" min="0" max="1000" value="0" aria-label="Positie">
+      <span class="small" id="pDur">0:00</span>
+    </div>
+    <div class="cues">
+      <button type="button" data-cue="start">Begin</button>
+      <button type="button" data-cue="mid">Midden</button>
+      <button type="button" data-cue="end">Laatste 20 s</button>
+      <button type="button" id="pClose" aria-label="Stop en sluit">✕</button>
+    </div>
+  </div>
+</div>
+<dialog id="ed" aria-labelledby="edTitle">
+  <form method="dialog" id="edForm">
+    <h3 id="edTitle" style="font-size:20px">Nummer aanpassen</h3>
+    <div class="two">
+      <label class="f">Titel<input type="text" id="edT"></label>
+      <label class="f">Artiest<input type="text" id="edA"></label>
+    </div>
+    <div class="two">
+      <label class="f">Jaar<input type="number" id="edY" min="1600" max="2100"></label>
+      <label class="f">BPM<input type="number" id="edB" min="0" max="250"></label>
+    </div>
+    <div class="two">
+      <label class="f">Energie (1–10)<input type="number" id="edE" min="1" max="10"></label>
+      <label class="f">Toonsoort (bijv. 8A of Am)<input type="text" id="edK" maxlength="8"></label>
+    </div>
+    <div class="two">
+      <label class="f">Genre<select id="edG"></select></label>
+      <label class="f">Sfeer<select id="edM"></select></label>
+    </div>
+    <div><p class="label">Dagdelen</p><div class="checks" id="edD"></div></div>
+    <div><p class="label">Speciale dagen en thema's</p><div class="checks" id="edS"></div></div>
+    <div class="dlgbtns"><button class="btn" value="cancel" type="submit">Annuleren</button><button class="btn primary" value="ok" type="submit" id="edOk">Opslaan</button></div>
+  </form>
+</dialog>
+<audio id="audio" preload="none"></audio>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const TODAY = new Date(new Date().toDateString());
+/* ---------- brug naar de Mac-app (alleen in CURIOUS XXL.app en CURIOUS XXL.exe) ---------- */
+const NATIVE=!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.pxxl);
+const _pend={};let _rid=0;
+window.__pxxlReply=(id,ok,val)=>{const p=_pend[id];if(!p)return;delete _pend[id];ok?p.res(val):p.rej(val)};
+const bridge=(cmd,args={})=>new Promise((res,rej)=>{const id=++_rid;_pend[id]={res,rej};window.webkit.messageHandlers.pxxl.postMessage({id,cmd,args})});
+if(NATIVE){const mb=document.getElementById('manualBtn');if(mb){mb.hidden=false;mb.onclick=()=>bridge('manual').catch(()=>toast('De handleiding kon niet openen'))}}
+const fileSrc=f=>f.native?(window.PXXL_MEDIA?window.PXXL_MEDIA(f.path):'file://'+f.path.split('/').map(encodeURIComponent).join('/')):URL.createObjectURL(f);
+if(NATIVE)document.documentElement.classList.add('native');
+const MOODS = {Energiek:'--m-energiek',Vrolijk:'--m-vrolijk',Feestelijk:'--m-feestelijk',Zonnig:'--m-zonnig',Stoer:'--m-stoer',Spannend:'--m-spannend',
+  Relaxed:'--m-relaxed',Dromerig:'--m-dromerig',Ingetogen:'--m-ingetogen',Romantisch:'--m-romantisch',Melancholisch:'--m-melancholisch',Nostalgisch:'--m-nostalgisch','Nog te bepalen':'--m-open'};
+const DAYPARTS = ['Ochtend','Middag','Namiddag','Avond','Nacht'];
+const CALENDAR = ['Nieuwjaar','Valentijn','Carnaval','Pasen','Koningsdag','Dodenherdenking','Bevrijdingsdag','Moederdag','Vaderdag','Zomer','Herfst','Halloween','Sinterklaas','Kerst','Oudejaarsavond'];
+const THEMES = ['Maandagochtend','Zondagochtend','Vrijdagmiddagborrel','Zomeravond','Regenachtige dag','Haardvuuravond','Diner','Workout','Roadtrip','Feestavond','Liefdesliedjes','Verjaardag','Bruiloft','Afscheid & troost'];
+const GENRES = ['Pop','Rock','Hardrock','Indie & Alternative','Soul & Funk','Disco','Dance & Electronic','Hip-hop & R&B','Jazz','Blues','Klassiek','Filmmuziek','Musical','Singer-songwriter','Country & Roots','Reggae & World','Latin','Chanson','Nederlandstalig','Levenslied','Ambient & New Age','Kinderliedjes'];
+const isOldie=t=>t.genre==='Oldies'||(t.year>=1900&&t.year<1970);
+const fileTitle=k=>String(k||'').split('/').pop().replace(/\.[^.]+$/,'').replace(/^\s*\d{1,3}[\s.\-_]+/,'').split(/\s+[-–]\s+/).pop().trim();
+function tidy(t){ // herstelt lege titels en onmogelijke jaartallen uit tags
+  if(!String(t.title||'').trim())t.title=fileTitle(t.key)||'Zonder titel';
+  if(!String(t.artist||'').trim())t.artist='Onbekende artiest';
+  if(t.year&&(t.year<1900||t.year>new Date().getFullYear()+1))t.year=0;
+  return t;
+}
+/* duur, energie en toonsoort */
+const DUR_B=[['Kort < 3:00',0,180],['3–4 min',180,240],['4–5 min',240,300],['Lang > 5:00',300,1e9]];
+const durOf=t=>!t.dur?null:(DUR_B.find(b=>t.dur>=b[1]&&t.dur<b[2])||[])[0];
+const NRG_B=[['Laag 1–3',1,3],['Midden 4–6',4,6],['Hoog 7–8',7,8],['Piek 9–10',9,10]];
+const MOOD_E={Energiek:8,Feestelijk:8,Stoer:7,Vrolijk:7,Zonnig:6,Spannend:6,Nostalgisch:5,Romantisch:4,Melancholisch:3,Relaxed:3,Dromerig:3,Ingetogen:2};
+const estE=t=>Math.max(1,Math.min(10,(MOOD_E[t.mood]||5)+(t.bpm>=125?1:0)-(t.bpm&&t.bpm<=80?1:0)));
+const E=t=>t.nrg||estE(t);
+const nrgOf=t=>(NRG_B.find(b=>E(t)>=b[1]&&E(t)<=b[2])||[])[0];
+const KEY_MAJ={C:8,G:9,D:10,A:11,E:12,B:1,'F#':2,GB:2,DB:3,'C#':3,AB:4,'G#':4,EB:5,'D#':5,BB:6,'A#':6,F:7};
+const KEY_MIN={A:8,E:9,B:10,'F#':11,GB:11,'C#':12,DB:12,'G#':1,AB:1,'D#':2,EB:2,BB:3,'A#':3,F:4,C:5,G:6,D:7};
+function toCamelot(k){
+  k=String(k||'').trim();if(!k)return '';
+  let m=k.toUpperCase().match(/^(1[0-2]|0?[1-9])\s*([AB])$/);if(m)return (+m[1])+m[2];
+  m=k.match(/^([A-Ga-g])\s*([#♯b♭]?)\s*(m|min|minor|moll|-)?\s*(maj|major|dur)?$/i);if(!m)return '';
+  const n=(m[1].toUpperCase()+(m[2]==='#'||m[2]==='♯'?'#':m[2]?'B':''));const minor=!!m[3];
+  const num=(minor?KEY_MIN:KEY_MAJ)[n];return num?num+(minor?'A':'B'):'';
+}
+function keyFits(a,b){
+  if(!a||!b)return true;const na=parseInt(a),nb=parseInt(b),la=a.slice(-1),lb=b.slice(-1);
+  if(la===lb){const d=Math.abs(na-nb);return d===0||d===1||d===11}
+  return na===nb;
+}
+function meter(v){let h='';for(let i=1;i<=10;i++)h+=`<i class="${i<=v?'on':''}" style="height:${4+i}px"></i>`;return `<span class="meter${v>=9?' hot':''}" aria-hidden="true">${h}</span>`}
+const decadeOf=y=>!y?'Onbekend':y<1950?'Vóór 1950':y<2000?'Jaren '+String(Math.floor(y/10)*10).slice(2):Math.floor(y/10)*10+'s';
+// [artiest, titel, jaar, duur s, bpm, genre, sfeer, dagdelen, speciale dagen (| gescheiden), speelhistorie]
+const RAW = [
+['Golden Earring','Radar Love',1973,383,128,'Rock','Stoer','Ochtend Namiddag','Roadtrip',['2026-10-30','2026-08-12','2026-05-02']],
+['Earth, Wind & Fire','September',1978,215,126,'Soul & Funk','Feestelijk','Ochtend Middag','Zomer|Bruiloft',['2026-09-21','2026-06-14','2026-01-10','2025-09-21']],
+['Norah Jones','Don’t Know Why',2002,186,88,'Jazz','Relaxed','Avond Nacht','Zondagochtend|Regenachtige dag',['2026-07-02']],
+['Fleetwood Mac','Dreams',1977,257,120,'Pop','Dromerig','Namiddag Avond','Herfst',['2026-10-28','2026-09-03']],
+['André Hazes','Zij Gelooft In Mij',1981,236,72,'Levenslied','Romantisch','Avond','Valentijn|Bruiloft',['2026-02-14','2025-11-08']],
+['Bruno Mars','Uptown Funk',2014,270,115,'Pop','Feestelijk','Ochtend Middag','Koningsdag',['2026-04-27','2026-03-19','2025-12-31']],
+['Miles Davis','So What',1959,562,136,'Jazz','Relaxed','Nacht','',[]],
+['Bill Withers','Lovely Day',1977,254,98,'Soul & Funk','Vrolijk','Ochtend','Zondagochtend',['2026-10-20','2026-09-27','2026-08-02','2026-06-07','2026-04-12']],
+['Doe Maar','Is Dit Alles',1982,249,96,'Nederlandstalig','Nostalgisch','Namiddag Avond','',['2026-06-30']],
+['Daft Punk','Get Lucky',2013,248,116,'Dance & Electronic','Zonnig','Middag Namiddag','Zomer',['2026-08-15','2026-07-11']],
+['Adele','Someone Like You',2011,285,67,'Pop','Melancholisch','Avond Nacht','Regenachtige dag',['2026-10-15','2026-03-01']],
+['Wham!','Last Christmas',1984,262,107,'Pop','Feestelijk','Ochtend Middag Namiddag','Kerst',['2025-12-24','2025-12-20','2025-12-14','2025-12-07']],
+['Michael Bublé','It’s Beginning to Look a Lot Like Christmas',2011,206,90,'Jazz','Vrolijk','Ochtend Middag','Kerst',['2025-12-21','2025-12-11']],
+['Queen','Don’t Stop Me Now',1979,209,156,'Rock','Energiek','Ochtend Namiddag','Nieuwjaar|Roadtrip',['2026-01-01','2026-05-23']],
+['Massive Attack','Teardrop',1998,330,77,'Dance & Electronic','Dromerig','Nacht','Herfst',['2026-10-31']],
+['BLØF','Zoutelande',2017,221,85,'Nederlandstalig','Romantisch','Namiddag Avond','Zomer',['2026-07-25','2026-06-20','2026-05-30']],
+['Stevie Wonder','Sir Duke',1976,233,104,'Soul & Funk','Vrolijk','Ochtend Middag','',['2026-09-12']],
+['Chet Baker','My Funny Valentine',1954,141,60,'Jazz','Romantisch','Avond Nacht','Valentijn',['2026-02-14']],
+['Pharrell Williams','Happy',2013,233,160,'Pop','Vrolijk','Ochtend','Verjaardag',['2026-10-26','2026-10-05','2026-09-14','2026-08-24','2026-07-13','2026-06-01']],
+['Dire Straits','Sultans of Swing',1978,348,148,'Rock','Energiek','Middag Namiddag','Roadtrip',['2026-08-29']],
+['Ludovico Einaudi','Nuvole Bianche',2004,357,72,'Klassiek','Ingetogen','Nacht','Zondagochtend',['2026-09-06']],
+['Marco Borsato','Dromen Zijn Bedrog',1994,262,76,'Nederlandstalig','Melancholisch','Avond','',[]],
+['Kool & The Gang','Celebration',1980,227,121,'Soul & Funk','Feestelijk','Middag Namiddag','Koningsdag|Nieuwjaar|Verjaardag',['2026-04-27','2026-01-01']],
+['Avicii','Wake Me Up',2013,247,124,'Dance & Electronic','Energiek','Ochtend','Zomer',['2026-10-29','2026-07-04']],
+['Ella Fitzgerald & Louis Armstrong','Dream a Little Dream of Me',1950,184,75,'Jazz','Romantisch','Avond','Valentijn|Bruiloft',['2025-10-11']],
+['The Police','Every Breath You Take',1983,253,117,'Rock','Spannend','Namiddag Avond','',['2026-09-30','2026-04-04']],
+['Ilse DeLange','World of Hurt',1998,232,92,'Country & Roots','Melancholisch','Avond','Herfst',['2026-05-17']],
+['Hans Zimmer','Time',2010,275,62,'Filmmuziek','Ingetogen','Nacht','Dodenherdenking',[]],
+['Whitney Houston','I Wanna Dance with Somebody',1987,291,119,'Pop','Feestelijk','Middag Namiddag','Koningsdag|Bruiloft',['2026-04-27','2026-02-28']],
+['Toto','Africa',1982,295,93,'Rock','Nostalgisch','Middag Namiddag','',['2026-10-22','2026-08-08','2026-06-27']],
+['Johnny Cash','Ring of Fire',1963,157,106,'Country & Roots','Stoer','Ochtend Middag','Roadtrip',['2026-03-14']],
+['Sade','Smooth Operator',1984,258,118,'Soul & Funk','Relaxed','Avond Nacht','',['2026-08-21']],
+['Bob Marley','Three Little Birds',1977,180,74,'Reggae & World','Zonnig','Ochtend','Zomer|Zondagochtend',['2026-07-19','2026-05-10']],
+['Mariah Carey','All I Want for Christmas Is You',1994,241,150,'Pop','Feestelijk','Ochtend Middag Namiddag','Kerst',['2025-12-25','2025-12-22','2025-12-18','2025-12-12','2025-12-05']],
+['Elton John','Your Song',1970,241,64,'Singer-songwriter','Romantisch','Avond','Valentijn|Moederdag',['2026-02-13']],
+['De Dijk','Als Ze Er Niet Is',1994,232,90,'Nederlandstalig','Melancholisch','Avond','',['2026-09-18']],
+['ABBA','Dancing Queen',1976,231,101,'Disco','Feestelijk','Middag Namiddag','Koningsdag|Oudejaarsavond|Bruiloft',['2026-10-17','2026-04-27','2025-12-31']],
+['Bee Gees','Stayin’ Alive',1977,285,104,'Disco','Energiek','Namiddag','',['2026-09-09']],
+['Gloria Gaynor','I Will Survive',1978,198,117,'Disco','Stoer','Namiddag Avond','Oudejaarsavond',['2025-12-31']],
+['Outkast','Hey Ya!',2003,235,159,'Hip-hop & R&B','Vrolijk','Ochtend Middag','',['2026-08-31']],
+['Lauryn Hill','Doo Wop (That Thing)',1998,320,100,'Hip-hop & R&B','Stoer','Namiddag','',[]],
+['Luther Vandross','Dance with My Father',2003,268,72,'Hip-hop & R&B','Nostalgisch','Avond','Vaderdag',['2026-06-21']],
+['B.B. King','The Thrill Is Gone',1969,325,90,'Blues','Melancholisch','Nacht','Regenachtige dag',['2026-03-28']],
+['Gary Moore','Still Got the Blues',1990,370,92,'Blues','Melancholisch','Avond Nacht','Herfst',[]],
+['Ed Sheeran','Perfect',2017,263,95,'Singer-songwriter','Romantisch','Avond','Valentijn|Bruiloft',['2026-10-10','2026-02-14']],
+['Tracy Chapman','Fast Car',1988,296,104,'Singer-songwriter','Nostalgisch','Namiddag Avond','Roadtrip',['2026-07-30']],
+['Luis Fonsi','Despacito',2017,229,89,'Latin','Zonnig','Middag','Zomer',['2026-07-18','2026-06-13']],
+['Santana','Smooth',1999,295,116,'Latin','Zonnig','Middag Namiddag','Zomer',['2026-08-22']],
+['Frans Bauer','Heb Je Even Voor Mij',1995,190,128,'Levenslied','Feestelijk','Middag','Carnaval',['2026-02-15']],
+['Vader Abraham','Het Kleine Café aan de Haven',1975,214,96,'Levenslied','Nostalgisch','Avond','Carnaval',['2026-02-16']],
+['Normaal','Oerend Hard',1980,242,140,'Nederlandstalig','Stoer','Namiddag','Carnaval',['2026-02-17']],
+['Johann Pachelbel','Canon in D',1680,330,60,'Klassiek','Ingetogen','Ochtend Nacht','Pasen|Zondagochtend|Bruiloft',['2026-04-05']],
+['The Beatles','Here Comes the Sun',1969,185,129,'Pop','Zonnig','Ochtend','Pasen|Zondagochtend',['2026-04-05','2026-03-22']],
+['John Williams','Hedwig’s Theme',2001,302,90,'Filmmuziek','Spannend','Avond','Halloween',['2025-10-31']],
+['Michael Jackson','Thriller',1982,357,118,'Pop','Spannend','Avond','Halloween',['2025-10-31','2025-10-25']],
+['Elaine Paige','Memory',1981,255,70,'Musical','Melancholisch','Avond','',[]],
+['Arctic Monkeys','Do I Wanna Know?',2013,272,85,'Indie & Alternative','Stoer','Avond Nacht','',['2026-09-24']],
+['Coldplay','Viva la Vida',2008,242,138,'Indie & Alternative','Energiek','Ochtend Middag','',['2026-10-19','2026-08-03']],
+['AC/DC','Highway to Hell',1979,208,116,'Hardrock','Stoer','Namiddag','Roadtrip|Halloween',['2026-05-09']],
+['Édith Piaf','La Vie en Rose',1947,186,72,'Chanson','Romantisch','Avond','Valentijn|Moederdag',['2026-05-10']],
+['Traditioneel','Sinterklaas Kapoentje',1900,118,110,'Kinderliedjes','Vrolijk','Ochtend Middag','Sinterklaas',['2025-12-05','2025-11-29']],
+['Boudewijn de Groot','Avond',1997,251,70,'Singer-songwriter','Ingetogen','Avond Nacht','Dodenherdenking',['2026-05-04']],
+['John Lennon','Imagine',1971,183,76,'Pop','Ingetogen','Avond','Bevrijdingsdag|Nieuwjaar|Dodenherdenking',['2026-05-05','2026-01-01']],
+['Lionel Richie','All Night Long',1983,380,108,'Soul & Funk','Zonnig','Namiddag','Oudejaarsavond|Zomer',['2026-07-26']],
+['Stevie Wonder','Happy Birthday',1980,357,124,'Soul & Funk','Feestelijk','Ochtend','Verjaardag',['2026-10-02']],
+['Brian Eno','An Ending (Ascent)',1983,266,60,'Ambient & New Age','Dromerig','Nacht','Zondagochtend',[]],
+['Enya','Orinoco Flow',1988,266,120,'Ambient & New Age','Dromerig','Ochtend Nacht','',['2026-06-08']],
+['Prince','Purple Rain',1984,520,57,'Rock','Melancholisch','Avond Nacht','Regenachtige dag',['2026-09-25']],
+['Boyz II Men','A Song for Mama',1997,293,66,'Hip-hop & R&B','Romantisch','Middag Avond','Moederdag',['2026-05-10']],
+];
+let T = RAW.map((r,i)=>mkTrack({artist:r[0],title:r[1],year:r[2],dur:r[3],bpm:r[4],genre:r[5],mood:r[6],dayparts:r[7].split(' ').filter(Boolean),special:r[8].split('|').filter(Boolean),plays:r[9]}));
+function mkTrack(o){
+  const t=Object.assign({id:0,key:'',nrg:0,tkey:'',year:0,dur:0,bpm:0,genre:'Nog te bepalen',mood:'Nog te bepalen',dayparts:[],special:[],plays:[],file:null,own:false,src:''},o);
+  t.last=t.plays.length?new Date(t.plays[0]):null;t.days=t.last?Math.round((TODAY-t.last)/864e5):Infinity;return t;
+}
+T.forEach((t,i)=>{t.id=i;t.key='demo:'+i});
+
+const state={q:'',daypart:new Set(),mood:new Set(),genre:new Set(),special:new Set(),decade:new Set(),dur:new Set(),nrg:new Set(),harm:false,shape:'vrij',hideRecent:false,onlyAudio:false,sort:'title',dir:1,run:[],talk:12,limit:200,playing:null};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mmss=s=>!s?'—':Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmtDate=d=>d?d.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'2-digit'}):'nooit';
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+
+/* ---------- filters ---------- */
+function chips(el,values,key,dotFn,countFn){
+  el.innerHTML='';
+  values.forEach(v=>{
+    const n=countFn(v);if(!n&&!state[key].has(v)&&key!=='special')return;
+    const b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('aria-pressed',state[key].has(v));
+    b.innerHTML=(dotFn?`<span class="dot" style="background:var(${dotFn(v)})"></span>`:'')+esc(v)+` <small>${n}</small>`;
+    b.onclick=()=>{state[key].has(v)?state[key].delete(v):state[key].add(v);b.setAttribute('aria-pressed',state[key].has(v));state.limit=200;render()};
+    el.appendChild(b);
+  });
+}
+function buildChips(){
+  chips($('#fDaypart'),DAYPARTS,'daypart',null,v=>T.filter(t=>t.dayparts.includes(v)).length);
+  chips($('#fMood'),Object.keys(MOODS),'mood',v=>MOODS[v],v=>T.filter(t=>t.mood===v).length);
+  const genres=[...new Set(T.map(t=>t.genre))].sort((a,b)=>a==='Nog te bepalen'?1:b==='Nog te bepalen'?-1:a.localeCompare(b,'nl'));
+  chips($('#fGenre'),['Oldies',...genres.filter(g=>g!=='Oldies')],'genre',null,v=>v==='Oldies'?T.filter(isOldie).length:T.filter(t=>t.genre===v).length);
+  const decs=[...new Set(T.map(t=>decadeOf(t.year)))].sort((a,b)=>(a==='Onbekend')-(b==='Onbekend')||a.localeCompare(b,'nl',{numeric:true}));
+  chips($('#fDecade'),decs.sort((a,b)=>{const y=x=>x==='Onbekend'?9999:x==='Vóór 1950'?0:+x.replace(/\D/g,'')+(x.startsWith('Jaren')?1900:0);return y(a)-y(b)}),'decade',null,v=>T.filter(t=>decadeOf(t.year)===v).length);
+  chips($('#fDur'),DUR_B.map(b=>b[0]),'dur',null,v=>T.filter(t=>durOf(t)===v).length);
+  chips($('#fNrg'),NRG_B.map(b=>b[0]),'nrg',null,v=>T.filter(t=>nrgOf(t)===v).length);
+  chips($('#fCal'),CALENDAR,'special',null,v=>T.filter(t=>t.special.includes(v)).length);
+  chips($('#fTheme'),THEMES,'special',null,v=>T.filter(t=>t.special.includes(v)).length);
+}
+function filtered(){
+  const q=norm(state.q);
+  const lastKey=state.harm&&state.run.length?T[state.run[state.run.length-1]].tkey:'';
+  return T.filter(t=>
+    (!state.dur.size||state.dur.has(durOf(t)))&&
+    (!state.nrg.size||state.nrg.has(nrgOf(t)))&&
+    (!lastKey||(t.tkey&&keyFits(lastKey,t.tkey)))&&
+    (!q||norm(t.title+t.artist).includes(q))&&
+    (!state.daypart.size||t.dayparts.some(d=>state.daypart.has(d)))&&
+    (!state.mood.size||state.mood.has(t.mood))&&
+    (!state.genre.size||state.genre.has(t.genre)||(state.genre.has('Oldies')&&isOldie(t)))&&
+    (!state.decade.size||state.decade.has(decadeOf(t.year)))&&
+    (!state.special.size||t.special.some(s=>state.special.has(s)))&&
+    (!state.hideRecent||t.days>14)&&(!state.onlyAudio||t.file));
+}
+function restBadge(t){
+  if(t.days===Infinity) return '<span class="rest fresh">nieuw</span>';
+  if(t.days<=14) return `<span class="rest recent">${t.days} d</span>`;
+  if(t.days<=30) return `<span class="rest mid">${t.days} d</span>`;
+  return `<span class="rest fresh">${t.days} d</span>`;
+}
+function bars(n){let h='';for(let i=0;i<6;i++)h+=`<i class="${i<n?'on':''}" style="height:${5+i*2}px"></i>`;return `<span class="bars" aria-hidden="true">${h}</span>`}
+
+/* ---------- catalogus ---------- */
+function render(){
+  let list=filtered();
+  const k=state.sort,d=state.dir;
+  const val=(t)=>k==='plays'?t.plays.length:k==='last'?t.days:k==='title'?t.title.toLowerCase():k==='nrg'?E(t):t[k];
+  list.sort((a,b)=>{const va=val(a),vb=val(b);return (va>vb?1:va<vb?-1:0)*d});
+  const shown=list.slice(0,state.limit);
+  $('#rows').innerHTML=shown.map(t=>{
+    const inRun=state.run.includes(t.id), on=state.playing===t.id;
+    const ds=[t.dayparts.join(', '),t.special.join(', ')].filter(Boolean).join('<br>')||'—';
+    return `<tr class="${inRun?'in':''} ${on?'playing':''}">
+      <td><div class="nr"><button class="play ${on?'on':''}" type="button" data-play="${t.id}" ${t.file?'':'disabled'} title="${t.file?'Voorluisteren':'Geen bestand gekoppeld'}" aria-label="${on?'Pauzeer':'Speel'}: ${esc(t.title)}">${on&&!$('#audio').paused?'❚❚':'▶'}</button>
+        <div><div class="t-title">${esc(t.title)}</div><div class="t-artist">${esc(t.artist)} · ${esc(t.genre)}${isOldie(t)&&t.genre!=='Oldies'?' · Oldies':''}</div></div></div></td>
+      <td class="num">${t.year||'—'}</td><td class="num">${mmss(t.dur)}</td><td class="num">${t.bpm||'—'}${t.tkey?`<span class="kchip">${t.tkey}</span>`:''}</td>
+      <td class="num nrg" title="${t.nrg?'Energie':'Energie geschat uit sfeer en tempo'}">${meter(E(t))}${E(t)}${t.nrg?'':'<span class="src">≈</span>'}</td>
+      <td><span class="mood"><span class="dot" style="background:var(${MOODS[t.mood]||'--m-open'})"></span>${esc(t.mood)}${t.src==='r'?'<span class="src" title="Geschat op genre en titel">≈</span>':t.src==='c'?'<span class="src" title="Ingedeeld door Claude">✦</span>':''}</span></td>
+      <td class="tag">${ds}</td>
+      <td><span class="use">${bars(t.plays.length)}<span class="num">${t.plays.length}×</span></span></td>
+      <td><div class="num" style="font-size:12px">${fmtDate(t.last)}</div>${restBadge(t)}</td>
+      <td><div class="cellbtns"><button class="add edit" type="button" data-edit="${t.id}" aria-label="Pas aan: ${esc(t.title)}">✎</button><button class="add" type="button" data-id="${t.id}" aria-label="${inRun?'Haal uit het uur':'Zet in het uur'}: ${esc(t.title)}">${inRun?'✓':'+'}</button></div></td>
+    </tr>`}).join('')||`<tr><td colspan="10" class="empty">Geen nummers bij deze combinatie. Haal een filter weg.</td></tr>`;
+  $('#more').hidden=list.length<=state.limit;
+  $('#count').textContent=`${Math.min(list.length,state.limit)} van ${list.length} getoond`;
+  $('#sTotal').textContent=T.length.toLocaleString('nl-NL');$('#sShown').textContent=list.length.toLocaleString('nl-NL');
+  $('#sAudio').textContent=T.filter(t=>t.file).length.toLocaleString('nl-NL');$('#sFresh').textContent=T.filter(t=>t.days>30).length.toLocaleString('nl-NL');
+  renderRun();
+}
+$('#moreBtn').onclick=()=>{state.limit+=200;render()};
+document.addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]');if(ed){openEditor(+ed.dataset.edit);return}
+  const a=e.target.closest('.add');
+  if(a){const id=+a.dataset.id;const i=state.run.indexOf(id);i>-1?state.run.splice(i,1):state.run.push(id);render();return}
+  const p=e.target.closest('[data-play]');
+  if(p&&!p.disabled){play(+p.dataset.play)}
+});
+
+/* ---------- uurklok ---------- */
+function renderRun(){
+  const budget=(60-state.talk)*60;
+  const total=state.run.reduce((s,id)=>s+(T[id].dur||0),0);
+  $('#filled').textContent=mmss(total)==='—'?'0:00':mmss(total);
+  const diff=budget-total;
+  $('#left').textContent=diff>=0?`nog ${mmss(diff)} van ${mmss(budget)} muziek`:`${mmss(-diff)} te lang`;
+  $('#left').style.color=diff<0?css('--onair'):'';
+  const withBpm=state.run.filter(id=>T[id].bpm);
+  const bpm=withBpm.length?Math.round(withBpm.reduce((s,id)=>s+T[id].bpm,0)/withBpm.length):0;
+  $('#avg').textContent=state.run.length?`${state.run.length} nummers${bpm?` · gem. ${bpm} BPM`:''}`:'';
+  const R=62,C=80,circ=2*Math.PI*R;let acc=0;
+  let svg=`<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="${css('--line')}" stroke-width="16"/>`;
+  svg+=`<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="${css('--muted')}" stroke-opacity=".35" stroke-width="16" stroke-dasharray="${state.talk/60*circ} ${circ}" transform="rotate(${-90+(60-state.talk)*6} ${C} ${C})"/>`;
+  state.run.forEach(id=>{
+    const t=T[id];const len=Math.min((t.dur||0)/3600*circ,Math.max(0,circ-acc));if(len<=0)return;
+    svg+=`<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="${css(MOODS[t.mood]||'--m-open')}" stroke-width="16" stroke-dasharray="${Math.max(len-1.2,0.5)} ${circ}" transform="rotate(${-90+acc/circ*360} ${C} ${C})"/>`;
+    acc+=t.dur/3600*circ;
+  });
+  for(let m=0;m<60;m+=15){const a=(m*6-90)*Math.PI/180;svg+=`<text x="${C+Math.cos(a)*42}" y="${C+Math.sin(a)*42+4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="${css('--muted')}">:${String(m).padStart(2,'0')}</text>`}
+  $('#clockSvg').innerHTML=svg;
+  // energieverloop
+  const cb=$('#curveBox');cb.hidden=state.run.length<2;
+  if(state.run.length>=2){
+    const W=300,H=54,n=state.run.length;let pts=[],x=0;const tot=state.run.reduce((s,id)=>s+(T[id].dur||180),0)||1;
+    state.run.forEach(id=>{const d=(T[id].dur||180);pts.push([(x+d/2)/tot*W,H-4-(E(T[id])-1)/9*(H-10)]);x+=d});
+    let g='';for(let v=3;v<=9;v+=3){const y=H-4-(v-1)/9*(H-10);g+=`<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="${css('--line')}" stroke-width="1"/>`}
+    const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const area=line+` L ${pts[pts.length-1][0].toFixed(1)} ${H} L ${pts[0][0].toFixed(1)} ${H} Z`;
+    $('#curve').innerHTML=g+`<path d="${area}" fill="${css('--accent')}" fill-opacity=".14"/><path d="${line}" fill="none" stroke="${css('--accent')}" stroke-width="2"/>`+pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${css('--accent')}"/>`).join('');
+  }
+  let start=0;
+  $('#run').innerHTML=state.run.length?state.run.map((id,i)=>{const t=T[id];const at=start;start+=t.dur||0;
+    return `<li><span class="time">:${String(Math.floor(at/60)).padStart(2,'0')}<span class="meta" title="Energie${t.tkey?' en toonsoort':''}">E${E(t)}${t.tkey?' '+t.tkey:''}${i&&t.tkey&&T[state.run[i-1]].tkey&&!keyFits(T[state.run[i-1]].tkey,t.tkey)?' ≠':''}</span></span><span class="name"><span class="dot" style="margin-right:6px;background:var(${MOODS[t.mood]||'--m-open'})"></span><b>${esc(t.title)}</b> · ${esc(t.artist)}</span>
+    <span class="ctl"><button type="button" data-play="${id}" ${t.file?'':'disabled'} aria-label="Voorluisteren">▶</button><button type="button" data-mv="${i}" data-d="-1" aria-label="Omhoog">↑</button><button type="button" data-mv="${i}" data-d="1" aria-label="Omlaag">↓</button><button type="button" data-rm="${i}" aria-label="Verwijder">✕</button></span></li>`}).join('')
+    :'<li class="empty" style="display:block">Nog leeg. Klik op + in de catalogus of gebruik "Vul aan met filters".</li>';
+}
+$('#run').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||b.dataset.play!==undefined)return;
+  if(b.dataset.rm!==undefined){state.run.splice(+b.dataset.rm,1)}
+  else{const i=+b.dataset.mv,j=i+ +b.dataset.d;if(j<0||j>=state.run.length)return;[state.run[i],state.run[j]]=[state.run[j],state.run[i]]}
+  render();
+});
+const SHAPES={vrij:null,op:f=>3+6*f,piek:f=>4+5*Math.sin(Math.PI*f),af:f=>9-5*f,vlak:()=>6};
+function fillHour(){
+  const budget=(60-state.talk)*60;let total=state.run.reduce((s,id)=>s+(T[id].dur||0),0);
+  const used=new Set(state.run);const target=SHAPES[state.shape];
+  let pool=filtered().filter(t=>t.dur&&!used.has(t.id)&&t.days>14).sort((a,b)=>b.days-a.days||a.plays.length-b.plays.length).slice(0,1500);
+  let added=0;
+  while(budget-total>20){
+    const R=budget-total;const last=state.run.length?T[state.run[state.run.length-1]]:null;
+    const fit=pool.filter(t=>!used.has(t.id)&&t.dur<=R+15);if(!fit.length)break;
+    if(R<=420){ // slot: zo precies mogelijk op het eind landen
+      let best=null,bd=1e9;
+      for(const t of fit){const d=Math.abs(R-t.dur);if(d<bd){bd=d;best=[t]}}
+      if(bd>25){const c=fit.slice(0,250);for(let i=0;i<c.length;i++)for(let j=i+1;j<c.length;j++){const s2=c[i].dur+c[j].dur;if(s2<=R+15){const d=Math.abs(R-s2);if(d<bd){bd=d;best=[c[i],c[j]]}}}}
+      best.forEach(t=>{state.run.push(t.id);used.add(t.id);total+=t.dur;added++});break;
+    }
+    const f=total/budget;let pick=null,ps=1e9;
+    fit.slice(0,400).forEach((t,i)=>{
+      let sc=i/400;                                   // rust: langst niet gedraaid eerst
+      if(target)sc+=Math.abs(E(t)-target(f))*0.6;     // opbouw volgen
+      if(last&&last.tkey&&t.tkey&&!keyFits(last.tkey,t.tkey))sc+=0.5; // liever harmonisch
+      if(last&&last.artist===t.artist)sc+=2;          // niet twee keer dezelfde artiest
+      if(sc<ps){ps=sc;pick=t}});
+    state.run.push(pick.id);used.add(pick.id);total+=pick.dur;added++;
+  }
+  const rest=budget-total;
+  toast(added?`${added} nummers toegevoegd · muziek eindigt ${rest>=0?mmss(rest)+' voor':mmss(-rest)+' na'} het einde van de muziektijd`:'Geen passende nummers meer binnen de filters');
+  render();
+}
+$('#fill').onclick=fillHour;
+$('#shape').onchange=e=>{state.shape=e.target.value};
+$('#harm').onchange=e=>{state.harm=e.target.checked;render()};
+$('#clear').onclick=()=>{state.run=[];render()};
+$('#talk').oninput=e=>{state.talk=+e.target.value;$('#talkV').textContent=state.talk;renderRun()};
+$('#q').oninput=e=>{state.q=e.target.value;state.limit=200;render()};
+$('#hideRecent').onchange=e=>{state.hideRecent=e.target.checked;render()};
+$('#onlyAudio').onchange=e=>{state.onlyAudio=e.target.checked;render()};
+$('#reset').onclick=()=>{['daypart','mood','genre','special','decade','dur','nrg'].forEach(k=>state[k].clear());state.harm=false;$('#harm').checked=false;state.q='';$('#q').value='';state.hideRecent=state.onlyAudio=false;$('#hideRecent').checked=$('#onlyAudio').checked=false;buildChips();render()};
+document.querySelectorAll('th[data-sort]').forEach(th=>th.onclick=()=>{const k=th.dataset.sort;state.dir=state.sort===k?-state.dir:1;state.sort=k;render()});
+$('#copy').onclick=()=>{
+  let at=0;const txt=slotLabel()+'\n'+state.run.map(id=>{const t=T[id];const line=`:${String(Math.floor(at/60)).padStart(2,'0')}  ${t.artist} – ${t.title} (${mmss(t.dur)} · E${E(t)}${t.tkey?' · '+t.tkey:''})`;at+=t.dur||0;return line}).join('\n');
+  const ta=$('#copyArea');ta.value=txt;
+  const fallback=()=>{ta.hidden=false;ta.select();toast('Selecteer en kopieer de tekst hieronder')};
+  try{navigator.clipboard.writeText(txt).then(()=>toast('Draaiboek gekopieerd'),fallback)}catch(e){fallback()}
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400)}
+
+/* ---------- voorluisteren ---------- */
+const audio=$('#audio');let curUrl=null;
+function play(id){
+  const t=T[id];if(!t.file)return;
+  if(state.playing===id){audio.paused?audio.play():audio.pause();return}
+  if(curUrl&&curUrl.startsWith('blob:'))URL.revokeObjectURL(curUrl);
+  curUrl=fileSrc(t.file);audio.src=curUrl;state.playing=id;
+  $('#pTitle').textContent=t.title;$('#pArtist').textContent=t.artist+(t.year?' · '+t.year:'');
+  $('#player').hidden=false;
+  audio.play().catch(()=>toast('Dit bestand kan de browser niet afspelen'));
+}
+audio.addEventListener('loadedmetadata',()=>{const t=T[state.playing];if(t&&!t.dur&&isFinite(audio.duration)){t.dur=Math.round(audio.duration)}$('#pDur').textContent=mmss(audio.duration)});
+audio.addEventListener('timeupdate',()=>{$('#pCur').textContent=mmss(audio.currentTime)==='—'?'0:00':mmss(audio.currentTime);if(audio.duration)$('#pSeek').value=audio.currentTime/audio.duration*1000});
+['play','pause','ended'].forEach(ev=>audio.addEventListener(ev,()=>{$('#pp').textContent=audio.paused?'▶':'❚❚';$('#pp').setAttribute('aria-label',audio.paused?'Speel':'Pauzeer');render()}));
+$('#pp').onclick=()=>audio.paused?audio.play():audio.pause();
+$('#pSeek').oninput=e=>{if(audio.duration)audio.currentTime=e.target.value/1000*audio.duration};
+document.querySelectorAll('[data-cue]').forEach(b=>b.onclick=()=>{if(!audio.duration)return;const c=b.dataset.cue;audio.currentTime=c==='start'?0:c==='mid'?audio.duration/2:Math.max(0,audio.duration-20);audio.play()});
+$('#pClose').onclick=()=>{audio.pause();audio.removeAttribute('src');if(curUrl&&curUrl.startsWith('blob:'))URL.revokeObjectURL(curUrl);curUrl=null;state.playing=null;$('#player').hidden=true;render()};
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&state.playing!==null&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName)){e.preventDefault();$('#pp').click()}});
+
+/* ---------- muziekmap koppelen ---------- */
+const AUDIO_RE=/\.(mp3|m4a|aac|wav|flac|ogg|aif|aiff)$/i;
+$('#pickDir').onclick=()=>NATIVE?nativeLink(true):$('#inDir').click();
+$('#pickFiles').onclick=()=>$('#inFiles').click();
+$('#inDir').onchange=e=>ingest([...e.target.files]);
+$('#inFiles').onchange=e=>ingest([...e.target.files]);
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{if(ev==='dragleave'&&e.relatedTarget)return;drop.classList.remove('drag')}));
+document.addEventListener('drop',async e=>{
+  e.preventDefault();
+  const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+  if(!items.length){ingest([...e.dataTransfer.files]);return}
+  const out=[];
+  async function walk(en){
+    if(en.isFile){out.push(await new Promise((res,rej)=>en.file(res,rej)));return}
+    const r=en.createReader();let batch;
+    do{batch=await new Promise(res=>r.readEntries(res,()=>res([])));for(const c of batch)await walk(c)}while(batch.length);
+  }
+  setStatus('Map doorzoeken…');for(const en of items)await walk(en);ingest(out);
+});
+function setStatus(txt,frac){$('#status').textContent=txt;const p=$('#prog');p.hidden=frac==null;if(frac!=null)p.firstElementChild.style.width=(frac*100)+'%'}
+
+function ingest(files){
+  files=files.filter(f=>AUDIO_RE.test(f.name));
+  if(!files.length){toast('Geen audiobestanden gevonden in deze keuze');return}
+  const byKey=new Map(T.filter(t=>!t.file&&t.key&&!t.key.startsWith('demo:')).map(t=>[t.key,t]));
+  let matched=0,known=0;const queue=[];
+  for(const f of files){
+    const path=f.webkitRelativePath||f.name;
+    const k=byKey.get(path);if(k){k.file=f;known++;continue}
+    const base=f.name.replace(/\.[^.]+$/,'');
+    const clean=base.replace(/^\s*\d{1,3}[\s.\-_]+/,'');
+    const parts=clean.split(/\s+[-–]\s+/);
+    const folder=(f.webkitRelativePath||'').split('/').slice(-2,-1)[0]||'Onbekende artiest';
+    const t=mkTrack({key:path,artist:parts.length>1?parts[0]:folder,title:parts.length>1?parts.slice(1).join(' - '):clean,file:f,own:true});
+    t.id=T.length;T.push(t);queue.push(t);
+  }
+  // voorbeeldnummers zonder bestand verdwijnen zodra je eigen map gekoppeld is
+  if(T.some(t=>t.key.startsWith('demo:')&&!t.file)){state.daypart.clear();state.run=state.run.filter(id=>T[id].file)}
+  if(T.some(t=>t.key.startsWith('demo:')&&!t.file))replaceCatalog(T.filter(t=>t.file||!t.key.startsWith('demo:')));
+  $('#demo').textContent='Eigen bestanden gekoppeld · alleen op deze computer';$('#demo').classList.add('live');
+  toast(`${files.length.toLocaleString('nl-NL')} bestanden · ${(known+matched).toLocaleString('nl-NL')} bekend, ${queue.length.toLocaleString('nl-NL')} nieuw`);
+  buildChips();render();
+  if(queue.length){dirty=true;readTags(queue)}else setStatus(`Klaar: ${known.toLocaleString('nl-NL')} nummers direct herkend. Klik op ▶ om te luisteren.`);
+}
+
+/* tags + duur op de achtergrond, drie tegelijk */
+function readTags(queue){
+  let done=0,lastPaint=0;const total=queue.length;if(!total){setStatus('Klaar. Klik op ▶ om te luisteren.');return}
+  const paint=(force)=>{const now=Date.now();if(force||now-lastPaint>800){lastPaint=now;buildChips();render()}};
+  if(NATIVE){(async()=>{
+    for(let i=0;i<total;i+=40){
+      const b=queue.slice(i,i+40);let r=[];
+      try{r=await bridge('tags',{paths:b.map(t=>t.file.path)})}catch(e){}
+      (r||[]).forEach((o,j)=>{const t=b[j];if(!o||!t)return;if(o.title&&String(o.title).trim())t.title=String(o.title).trim();if(o.artist&&String(o.artist).trim())t.artist=String(o.artist).trim();if(o.year)t.year=o.year;tidy(t);if(o.genre)t.genre=String(o.genre).trim();if(o.dur)t.dur=Math.round(o.dur);if(o.bpm&&!t.bpm)t.bpm=o.bpm;if(o.key&&!t.tkey)t.tkey=toCamelot(o.key)});
+      done=Math.min(total,i+40);setStatus(`Tags en duur lezen: ${done.toLocaleString('nl-NL')} / ${total.toLocaleString('nl-NL')}`,done/total);paint(false);
+    }
+    setStatus(`Klaar: ${total.toLocaleString('nl-NL')} nieuwe nummers ingelezen.`);classifyAll(queue);paint(true);if(DB)saveCatalog(true);
+  })();return}
+  async function one(t){
+    if(window.jsmediatags){
+      await new Promise(res=>jsmediatags.read(t.file,{onSuccess:({tags})=>{
+        if(tags.title&&tags.title.trim())t.title=tags.title.trim();if(tags.artist&&tags.artist.trim())t.artist=tags.artist.trim();
+        if(tags.year&&+String(tags.year).slice(0,4))t.year=+String(tags.year).slice(0,4);
+        if(tags.genre)t.genre=String(tags.genre).replace(/^\(\d+\)/,'').trim()||t.genre;
+        if(tags.TBPM&&tags.TBPM.data)t.bpm=Math.round(+tags.TBPM.data)||0;if(tags.TKEY&&tags.TKEY.data)t.tkey=toCamelot(tags.TKEY.data);tidy(t);res()},onError:res}));
+    }
+    await new Promise(res=>{const a=new Audio();const u=URL.createObjectURL(t.file);a.preload='metadata';
+      const end=()=>{if(isFinite(a.duration))t.dur=Math.round(a.duration);URL.revokeObjectURL(u);a.removeAttribute('src');res()};
+      a.onloadedmetadata=end;a.onerror=end;a.src=u;setTimeout(end,8000)});
+    done++;setStatus(`Tags en duur lezen: ${done.toLocaleString('nl-NL')} / ${total.toLocaleString('nl-NL')}`,done/total);paint(false);
+  }
+  let i=0;
+  const worker=async()=>{while(i<queue.length){const t=queue[i++];try{await one(t)}catch(e){done++}}};
+  Promise.all([worker(),worker(),worker()]).then(()=>{setStatus(`Klaar: ${total.toLocaleString('nl-NL')} nieuwe nummers ingelezen.`);classifyAll(queue);paint(true);if(DB)saveCatalog(true)});
+}
+
+/* ---------- bewaren ---------- */
+let DB=null,DL=null,SAMPLE=null,dirty=false,hours=[];const lastSaved=new Map();
+const CHUNK=500;
+const pad=c=>String(c).padStart(3,'0');
+const fmtStamp=s=>new Date(s).toLocaleString('nl-NL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const setSave=t=>$('#saveStatus').textContent=t;
+const timeout=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r({code:'timeout'}),ms))]);
+const packTrack=t=>[t.key,t.artist,t.title,t.year,t.dur,t.bpm,t.genre,t.mood,t.dayparts.join(' '),t.special.join('|'),t.plays.slice(0,30),t.src,t.nrg||0,t.tkey||''];
+const unpack=a=>mkTrack({key:a[0],artist:a[1],title:a[2],year:a[3],dur:a[4],bpm:a[5],genre:a[6],mood:a[7],dayparts:a[8]?a[8].split(' '):[],special:a[9]?a[9].split('|'):[],plays:a[10]||[],src:a[11]||'',nrg:a[12]||0,tkey:a[13]||''});
+function replaceCatalog(list){
+  const keys=state.run.map(id=>T[id]&&T[id].key);
+  if(state.playing!==null){audio.pause();state.playing=null;$('#player').hidden=true}
+  T=list;T.forEach((t,i)=>t.id=i);
+  const byKey=new Map(T.map(t=>[t.key,t.id]));
+  state.run=keys.map(k=>byKey.get(k)).filter(v=>v!=null);
+  buildChips();render();
+}
+let saving=false,saveAgain=false;
+async function saveCatalog(auto){
+  if(!DB){toast('Bewaren kan hier niet. Maak een back-up.');return}
+  if(saving){saveAgain=true;return}saving=true;
+  const btn=$('#saveCat');btn.disabled=true;
+  try{
+    const real=T.filter(t=>!t.key.startsWith('demo:'));
+    if(!real.length){setSave('Koppel eerst je muziekmap; de voorbeeldnummers worden niet bewaard.');btn.disabled=false;saving=false;return}
+    const n=Math.ceil(real.length/CHUNK);
+    for(let c=0;c<n;c++){const body=real.slice(c*CHUNK,(c+1)*CHUNK).map(packTrack);const js=JSON.stringify(body);if(lastSaved.get(c)===js)continue;setSave(`Bewaren… ${c+1} van ${n}`);await DB.doc('catalog/c'+pad(c)).set({tracks:body});lastSaved.set(c,js)}
+    const prev=await DB.doc('meta/info').get();const old=prev.exists?prev.data().chunks||0:0;
+    for(let c=n;c<old;c++)await DB.doc('catalog/c'+pad(c)).delete();
+    const at=new Date().toISOString();
+    await DB.doc('meta/info').set({count:real.length,chunks:n,savedAt:at});
+    dirty=false;setSave(`Bewaard: ${real.length.toLocaleString('nl-NL')} nummers · ${fmtStamp(at)}`);
+    if(auto)toast('Catalogus automatisch bewaard');
+  }catch(e){setSave(e.code==='quota_exceeded'?'De opslag is vol: '+e.message:'Bewaren is niet gelukt. Klik nogmaals op Bewaar catalogus.')}
+  btn.disabled=false;saving=false;
+  if(saveAgain){saveAgain=false;saveCatalog(false)}
+}
+let saveTimer=null;const queueSave=()=>{dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(()=>DB&&saveCatalog(false),2500)};
+async function loadCatalog(){
+  try{
+    const info=await timeout(DB.doc('meta/info').get(),10000);
+    if(!info.exists){setSave('Nog niets bewaard. Koppel je map; na het inlezen wordt de catalogus vanzelf bewaard.');return}
+    const {chunks,savedAt,count}=info.data();const out=[];
+    for(let c=0;c<chunks;c++){setSave(`Catalogus laden… ${c+1} van ${chunks}`);const s=await DB.doc('catalog/c'+pad(c)).get();if(s.exists){const tr=s.data().tracks;out.push(...tr);lastSaved.set(c,JSON.stringify(tr))}}
+    if(T.some(t=>t.file)){ // map was al gekoppeld: neem historie en indeling over, houd het geluid
+      const st=new Map(out.map(a=>[a[0],unpack(a)]));
+      T.forEach(t=>{const s=st.get(t.key);if(s)Object.assign(t,{artist:s.artist,title:s.title,year:s.year||t.year,dur:s.dur||t.dur,bpm:s.bpm,genre:s.genre,mood:s.mood,dayparts:s.dayparts,special:s.special,plays:s.plays,last:s.last,days:s.days})});
+      buildChips();render();setSave(`Bewaarde gegevens samengevoegd met je gekoppelde map`);return}
+    state.daypart.clear();const lst=out.map(unpack);lst.forEach(t=>{const y=t.year;tidy(t);if(y!==t.year&&t.src==='r')t.src=''});classifyAll(lst);replaceCatalog(lst);
+    $('#demo').textContent='Bewaarde catalogus · koppel je map voor geluid';
+    setSave(`Geladen: ${count.toLocaleString('nl-NL')} nummers, bewaard op ${fmtStamp(savedAt)}`);
+  }catch(e){setSave(e.code==='timeout'?'De opslag reageert nog niet. Herlaad de pagina straks.':'Laden is niet gelukt. Herlaad de pagina.')}
+}
+$('#saveCat').onclick=()=>saveCatalog(false);
+
+/* uren bewaren en uitzenden */
+function renderHours(){
+  const sel=$('#hours'),cur=sel.value;
+  sel.innerHTML='<option value="">Bewaarde uren openen…</option>'+hours.map(h=>`<option value="${h.id}">${h.aired?'✓ ':''}${esc(h.name)} · ${h.keys.length} nrs</option>`).join('');
+  sel.value=cur;
+}
+$('#saveHour').onclick=async()=>{
+  if(!DB){toast('Bewaren kan hier niet');return}
+  if(!state.run.length){toast('Het uur is nog leeg');return}
+  try{await DB.collection('hours').add({name:slotLabel(),airDate:$('#airDate').value,airTime:$('#airTime').value,talk:state.talk,keys:state.run.map(id=>T[id].key),aired:false,savedAt:new Date().toISOString()});toast('Uur bewaard')}
+  catch(e){toast('Bewaren van het uur is niet gelukt')}
+};
+$('#hours').onchange=e=>{
+  const h=hours.find(x=>x.id===e.target.value);if(!h)return;
+  const byKey=new Map(T.map(t=>[t.key,t.id]));
+  state.run=h.keys.map(k=>byKey.get(k)).filter(v=>v!=null);
+  if(h.airDate)$('#airDate').value=h.airDate;if(h.airTime)$('#airTime').value=h.airTime;updateSlot();
+  state.talk=h.talk??12;$('#talk').value=state.talk;$('#talkV').textContent=state.talk;
+  const miss=h.keys.length-state.run.length;
+  toast(miss?`${miss} nummer(s) niet meer in de catalogus`:'Uur geopend');render();
+};
+let airArm=null;
+$('#aired').onclick=async()=>{
+  const b=$('#aired');
+  if(!state.run.length){toast('Het uur is nog leeg');return}
+  if(!airArm){b.textContent='Klik nogmaals om te bevestigen';airArm=setTimeout(()=>{airArm=null;b.textContent='Markeer als uitgezonden'},4000);return}
+  clearTimeout(airArm);airArm=null;b.textContent='Markeer als uitgezonden';
+  const today=new Date().toISOString().slice(0,10);
+  state.run.forEach(id=>{const t=T[id];if(t.plays[0]!==today)t.plays=[today,...t.plays];t.last=new Date(today);t.days=0});
+  const h=hours.find(x=>x.id===$('#hours').value);
+  if(DB&&h){try{await DB.doc('hours/'+h.id).update({aired:true})}catch(e){}}
+  render();toast(`${state.run.length} nummers bijgeschreven in de speelhistorie`);
+  if(DB)saveCatalog(false);
+};
+
+/* exporteren */
+function csv(){
+  const q=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const head=['Artiest','Titel','Jaar','Duur','BPM','Toonsoort','Energie','Genre','Sfeer','Dagdelen','Speciale dagen','Keer gedraaid','Laatst gedraaid','Bestand'];
+  return '\ufeff'+[head.join(';'),...T.map(t=>[t.artist,t.title,t.year||'',mmss(t.dur),t.bpm||'',t.tkey||'',E(t),t.genre,t.mood,t.dayparts.join(', '),t.special.join(', '),t.plays.length,t.plays[0]||'',t.key.startsWith('demo:')?'':t.key].map(q).join(';'))].join('\n');
+}
+async function offer(filename,data){
+  if(!DL){toast('Opslaan als bestand kan alleen in de pagina zelf. Open het artifact via de kaart in het gesprek.');return}
+  try{await DL.save({filename,data});toast('Bestand opgeslagen')}
+  catch(e){toast(e.code==='declined'?'Opslaan geannuleerd':e.code==='rate_limited'?'Er staat al een bewaarvenster open':`Opslaan is niet gelukt (${e.code||'onbekend'})`)}
+}
+const stamp=()=>new Date().toISOString().slice(0,10);
+$('#expCsv').onclick=()=>T.some(t=>!t.key.startsWith('demo:'))?offer(`curious-xxl-${stamp()}.csv`,csv()):toast('Er is nog niets om te exporteren: koppel eerst je muziekmap');
+$('#expJson').onclick=()=>{const real=T.filter(t=>!t.key.startsWith('demo:'));if(!real.length){toast('Er is nog niets om te bewaren: koppel eerst je muziekmap of wacht tot de catalogus geladen is');return}offer(`curious-xxl-backup-${stamp()}.json`,JSON.stringify({app:'CURIOUS XXL',version:1,savedAt:new Date().toISOString(),tracks:T.filter(t=>!t.key.startsWith('demo:')).map(packTrack),hours}));}
+$('#impJson').onclick=()=>$('#inJson').click();
+$('#inJson').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const j=JSON.parse(await f.text());if(!Array.isArray(j.tracks))throw 0;
+    state.daypart.clear();const lst=j.tracks.map(unpack);classifyAll(lst);replaceCatalog(lst);toast(`${j.tracks.length.toLocaleString('nl-NL')} nummers teruggezet`);
+    if(DB)saveCatalog(false);}
+  catch(_){toast('Dit is geen back-up van CURIOUS XXL')}
+  e.target.value='';
+};
+
+/* ---------- indelen: eerste schatting op genre en titel ---------- */
+const GENRE_RULES=[
+ [/metal|hard ?rock|heavy/i,'Hardrock'],[/punk|grunge|alternati|indie|new wave|britpop|shoegaze/i,'Indie & Alternative'],
+ [/disco/i,'Disco'],[/house|techno|trance|edm|electr|dance|club|synth|drum ?&? ?bass|dubstep/i,'Dance & Electronic'],
+ [/hip.?hop|\brap\b|r&b|rnb|r'n'b|urban|trap/i,'Hip-hop & R&B'],[/soul|funk|motown|gospel/i,'Soul & Funk'],
+ [/jazz|swing|big ?band|bossa|lounge|easy listening|crooner/i,'Jazz'],[/blues/i,'Blues'],
+ [/soundtrack|\bfilm|\bscore\b|\bost\b|movie/i,'Filmmuziek'],[/musical|show ?tunes|broadway/i,'Musical'],
+ [/classic(al)?\b(?! rock)|klassiek|opera|baroque|barok|orchest|symphon|chamber|kamermuziek/i,'Klassiek'],
+ [/ambient|new ?age|chill|meditat|relax/i,'Ambient & New Age'],[/country|folk|americana|bluegrass|roots/i,'Country & Roots'],
+ [/reggae|\bska\b|world|afro|calypso|celtic/i,'Reggae & World'],[/latin|salsa|samba|tango|bachata|reggaeton|flamenco/i,'Latin'],
+ [/levenslied|smartlap|schlager|carnaval|feest/i,'Levenslied'],[/neder|dutch|nl ?pop|kleinkunst|\bnl\b/i,'Nederlandstalig'],
+ [/chanson|french|vari[eé]t[eé]/i,'Chanson'],[/kinder|children/i,'Kinderliedjes'],[/singer|songwriter|acoustic|akoestisch/i,'Singer-songwriter'],
+ [/oldies|golden ?oldies|evergreen/i,'Oldies'],[/rock/i,'Rock'],[/pop|top ?40|charts|hits|[5-9]0'?s/i,'Pop'],
+];
+const GENRE_MOOD={'Oldies':'Nostalgisch','Hardrock':'Stoer','Indie & Alternative':'Dromerig','Disco':'Feestelijk','Dance & Electronic':'Energiek','Hip-hop & R&B':'Stoer','Soul & Funk':'Vrolijk','Jazz':'Relaxed','Blues':'Melancholisch','Filmmuziek':'Spannend','Musical':'Romantisch','Klassiek':'Ingetogen','Ambient & New Age':'Dromerig','Country & Roots':'Nostalgisch','Reggae & World':'Zonnig','Latin':'Zonnig','Levenslied':'Nostalgisch','Nederlandstalig':'Nostalgisch','Chanson':'Romantisch','Kinderliedjes':'Vrolijk','Singer-songwriter':'Ingetogen','Rock':'Energiek','Pop':'Vrolijk'};
+const MOOD_PARTS={Energiek:'Ochtend Namiddag',Vrolijk:'Ochtend Middag',Feestelijk:'Middag Namiddag',Zonnig:'Middag Namiddag',Stoer:'Namiddag Avond',Spannend:'Avond',Relaxed:'Avond Nacht',Dromerig:'Nacht',Ingetogen:'Avond Nacht',Romantisch:'Avond',Melancholisch:'Avond Nacht',Nostalgisch:'Namiddag Avond'};
+// trefwoorden in de titel: [patroon, sfeer of null, speciale dagen]
+const WORDS=[
+ [/christmas|xmas|kerst|santa|sleigh|jingle bell|silent night|stille nacht|white christmas|reindeer|mistletoe|navidad|noel\b/i,'Feestelijk',['Kerst','Haardvuuravond']],
+ [/snow|sneeuw|winter|fire ?place|haard/i,'Ingetogen',['Haardvuuravond']],
+ [/sinterklaas|sint nicolaas|zwarte piet|stoomboot|pepernoot/i,'Vrolijk',['Sinterklaas']],
+ [/new year|nieuwjaar|auld lang syne|happy new|countdown/i,'Feestelijk',['Nieuwjaar','Oudejaarsavond']],
+ [/carnaval|alaaf|polonaise|vasteloavend/i,'Feestelijk',['Carnaval','Feestavond']],
+ [/easter|pasen|paas/i,null,['Pasen']],
+ [/halloween|ghost|spook|witch|heks|devil|duivel|monster|zombie|vampire|haunted|thriller/i,'Spannend',['Halloween']],
+ [/oranje|holland|nederland|koning/i,'Feestelijk',['Koningsdag']],
+ [/freedom|vrijheid|peace|vrede|liberat|bevrijd/i,null,['Bevrijdingsdag']],
+ [/remember|herdenk|requiem|amazing grace|abide|lest we forget/i,'Ingetogen',['Dodenherdenking','Afscheid & troost']],
+ [/mother|\bmama\b|\bmom\b|moeder|\bmam\b/i,'Romantisch',['Moederdag']],
+ [/father|\bpapa\b|\bdad\b|vader|\bpap\b/i,'Nostalgisch',['Vaderdag']],
+ [/birthday|verjaardag|jarig|lang zal (hij|ze) leven/i,'Feestelijk',['Verjaardag']],
+ [/wedding|bruiloft|marry|trouw|forever|for ever|always|altijd/i,'Romantisch',['Bruiloft','Liefdesliedjes']],
+ [/\blove|liefde|lieverd|\bhart\b|heart|amour|amore|kiss|kus|darling|baby|sweetheart|valentine/i,'Romantisch',['Valentijn','Liefdesliedjes']],
+ [/summer|zomer|sun\b|sunny|\bzon\b|beach|strand|island|tropic|holiday|vakantie|ibiza|copacabana/i,'Zonnig',['Zomer','Zomeravond']],
+ [/autumn|herfst|fall\b|leaves|bladeren|september|october|oktober|november/i,'Melancholisch',['Herfst']],
+ [/rain|regen|storm|cloud|wolk|grey|grijs/i,'Melancholisch',['Regenachtige dag']],
+ [/road|highway|drive|driving|\bcar\b|auto|snelweg|ride|route 66|on the road/i,'Energiek',['Roadtrip']],
+ [/morning|ochtend|sunrise|wake up|wakker|good day|lovely day/i,'Vrolijk',['Maandagochtend','Zondagochtend']],
+ [/sunday|zondag/i,'Relaxed',['Zondagochtend']],[/friday|vrijdag|weekend/i,'Feestelijk',['Vrijdagmiddagborrel']],
+ [/party|feest|dance|dansen|celebrat|boogie|disco|groove/i,'Feestelijk',['Feestavond']],
+ [/run|running|jump|move|power|stronger|fighter|eye of the tiger|go go/i,'Energiek',['Workout']],
+ [/goodbye|vaarwel|afscheid|farewell|tears|traan|tranen|cry|huil|alone|alleen|lonely|eenzaam|sorry|missing|mis je/i,'Melancholisch',['Afscheid & troost']],
+ [/night|nacht|moon|maan|dream|droom|stars|sterren|sleep|slaap/i,'Dromerig',[]],
+ [/yesterday|gisteren|memories|herinner|old days|vroeger|back in the|those were/i,'Nostalgisch',[]],
+];
+const NL_WORDS=/\b(de|het|een|ik|jij|je|niet|mijn|zijn|wat|voor|naar|maar|als|nog|meer|zo|ons|mij|ben|bent|wil|toch|alles|nooit|altijd)\b/i;
+const ID3G='Blues,Classic Rock,Country,Dance,Disco,Funk,Grunge,Hip-Hop,Jazz,Metal,New Age,Oldies,Other,Pop,R&B,Rap,Reggae,Rock,Techno,Industrial,Alternative,Ska,Death Metal,Pranks,Soundtrack,Euro-Techno,Ambient,Trip-Hop,Vocal,Jazz+Funk,Fusion,Trance,Classical,Instrumental,Acid,House,Game,Sound Clip,Gospel,Noise,AlternRock,Bass,Soul,Punk,Space,Meditative,Instrumental Pop,Instrumental Rock,Ethnic,Gothic,Darkwave,Techno-Industrial,Electronic,Pop-Folk,Eurodance,Dream,Southern Rock,Comedy,Cult,Gangsta,Top 40,Christian Rap,Pop/Funk,Jungle,Native American,Cabaret,New Wave,Psychadelic,Rave,Showtunes,Trailer,Lo-Fi,Tribal,Acid Punk,Acid Jazz,Polka,Retro,Musical,Rock & Roll,Hard Rock'.split(',');
+function classify(t){
+  // genre uit de tag
+  let raw=String(t.genre||'').trim();
+  const mnum=raw.match(/^\(?(\d{1,3})\)?$/);if(mnum&&ID3G[+mnum[1]])raw=ID3G[+mnum[1]];
+  if(!GENRES.includes(raw)&&raw!=='Oldies'){
+    let g=null;for(const [re,name] of GENRE_RULES){if(re.test(raw)){g=name;break}}
+    if(!g&&t.title.split(/\s+/).filter(w=>NL_WORDS.test(w)).length>=2)g='Nederlandstalig';
+    t.genre=g||(raw&&raw!=='Nog te bepalen'?raw.replace(/\b\w/g,c=>c.toUpperCase()):'Pop');
+  }
+  if(t.genre==='Pop'&&NL_WORDS.test(t.title)&&t.title.split(/\s+/).filter(w=>NL_WORDS.test(w)).length>=2)t.genre='Nederlandstalig';
+  // sfeer en speciale dagen uit titel, anders uit genre
+  let mood=null;const sp=new Set();
+  for(const [re,m,days] of WORDS){if(re.test(t.title)){if(!mood&&m)mood=m;days.forEach(d=>sp.add(d))}}
+  if(!mood)mood=GENRE_MOOD[t.genre]||'Vrolijk';
+  if(t.bpm>=128&&['Vrolijk','Nostalgisch','Zonnig'].includes(mood))mood='Energiek';
+  if(t.bpm&&t.bpm<=75&&['Energiek','Vrolijk'].includes(mood))mood='Relaxed';
+  // thema's uit sfeer en genre
+  const add=d=>sp.add(d);
+  if(mood==='Romantisch')add('Liefdesliedjes');
+  if(mood==='Zonnig')add('Zomeravond');
+  if(['Feestelijk'].includes(mood)||['Disco','Soul & Funk'].includes(t.genre))add('Vrijdagmiddagborrel');
+  if(['Jazz','Chanson'].includes(t.genre)||mood==='Relaxed')add('Diner');
+  if(['Relaxed','Ingetogen'].includes(mood)&&['Jazz','Klassiek','Singer-songwriter','Ambient & New Age'].includes(t.genre))add('Zondagochtend');
+  if(mood==='Energiek'&&['Dance & Electronic','Rock','Hardrock','Hip-hop & R&B'].includes(t.genre))add('Workout');
+  if(mood==='Energiek'&&['Pop','Rock','Soul & Funk'].includes(t.genre))add('Maandagochtend');
+  if(mood==='Melancholisch')add('Regenachtige dag');
+  t.mood=mood;t.dayparts=MOOD_PARTS[mood].split(' ');t.special=[...sp];t.src='r';
+}
+function classifyAll(list){let n=0;list.forEach(t=>{if(!t.src||t.mood==='Nog te bepalen'){if(t.key.startsWith('demo:'))return;classify(t);n++}});return n}
+
+/* ---------- verfijnen door Claude ---------- */
+let refining=false,stopRefine=false;
+const SPECIALS=[...CALENDAR,...THEMES];
+$('#refineStop').onclick=()=>{stopRefine=true;$('#refineStop').textContent='Pauzeert na deze ronde…'};
+$('#refine').onclick=async()=>{
+  if(!SAMPLE||refining)return;
+  const todo=T.filter(t=>!t.key.startsWith('demo:')&&t.src!=='c'&&t.src!=='h');
+  if(!todo.length){toast('Alle nummers zijn al verfijnd');return}
+  refining=true;stopRefine=false;$('#refine').disabled=true;$('#refineStop').hidden=false;$('#refineStop').textContent='Pauzeer';
+  const BATCH=60,total=todo.length;let done=0,rounds=0;const p=$('#refineProg');p.hidden=false;
+  const rs=t=>$('#refineStatus').textContent=t;
+  rs(`Start: ${total.toLocaleString('nl-NL')} nummers`);
+  for(let i=0;i<todo.length&&!stopRefine;i+=BATCH){
+    const batch=todo.slice(i,i+BATCH);
+    const prompt=`You classify songs for a Dutch radio programmer who builds themed radio hours.
+For each item return {"i":id,"genre":..,"mood":..,"dayparts":[..],"special":[..],"bpm":int,"year":int,"energy":int,"key":".."}.
+genre: exactly one of ${JSON.stringify(GENRES)}.
+mood: exactly one of ${JSON.stringify(Object.keys(MOODS).filter(m=>m!=='Nog te bepalen'))}.
+dayparts: 1 to 3 of ${JSON.stringify(DAYPARTS)} where the song fits best on radio (Ochtend 06-10, Middag 10-14, Namiddag 14-18, Avond 18-22, Nacht 22-06).
+special: 0 to 4 of ${JSON.stringify(SPECIALS)}; only where the song genuinely fits (a Christmas song gets "Kerst", a love song "Liefdesliedjes", an upbeat run song "Workout").
+bpm: your best estimate of the tempo of the original recording, 0 if you have no idea.
+year: the ORIGINAL first release year of the song itself (not of a compilation album or re-release; tag years are often compilation years), 0 if you do not know.\nenergy: 1 to 10, how energetic the original recording feels on radio (1 = very calm ballad, 5 = medium, 10 = peak dance anthem).\nkey: the musical key of the original recording in Camelot notation like "8A" (A minor) or "8B" (C major), or "" if you are not sure.
+Use your knowledge of the actual recording; when you do not know it, infer from artist, title, genre tag and year.
+Return only a JSON array, one object per item, in any order.
+Items as [id, artist, title, year, genre tag]:
+${JSON.stringify(batch.map(t=>[t.id,t.artist,t.title,t.year||0,t.genre]))}`;
+    let res=null;
+    for(let attempt=0;attempt<3&&!res;attempt++){
+      try{res=await SAMPLE.json(prompt,{modelTier:'default'})}
+      catch(e){
+        if(e.code==='not_granted'){rs('Claude kreeg geen toestemming. Klik nogmaals en sta het toe.');stopRefine=true;break}
+        if(e.code==='missing'){rs('Claude Code staat niet op deze computer. De eerste indeling (≈) blijft gewoon werken.');stopRefine=true;break}
+        if(e.code==='rate_limited'){rs('Even wachten, Claude krijgt veel vragen…');await new Promise(r=>setTimeout(r,20000))}
+        else await new Promise(r=>setTimeout(r,3000));
+      }
+    }
+    if(Array.isArray(res)){
+      for(const o of res){
+        const t=T[o&&o.i];if(!t||!batch.includes(t))continue;
+        if(GENRES.includes(o.genre))t.genre=o.genre;
+        if(MOODS[o.mood]&&o.mood!=='Nog te bepalen')t.mood=o.mood;
+        const dp=(o.dayparts||[]).filter(d=>DAYPARTS.includes(d));if(dp.length)t.dayparts=dp;
+        if(Array.isArray(o.special))t.special=o.special.filter(d=>SPECIALS.includes(d)).slice(0,5);
+        if(+o.bpm>30&&+o.bpm<260&&!t.bpm)t.bpm=Math.round(+o.bpm);
+        if(+o.year>=1900&&+o.year<=new Date().getFullYear())t.year=+o.year;
+        if(+o.energy>=1&&+o.energy<=10)t.nrg=Math.round(+o.energy);
+        if(!t.tkey&&o.key){const k=toCamelot(o.key);if(k)t.tkey=k}
+        t.src='c';
+      }
+    }
+    done+=batch.length;rounds++;p.firstElementChild.style.width=(done/total*100)+'%';
+    rs(`Verfijnd: ${done.toLocaleString('nl-NL')} van ${total.toLocaleString('nl-NL')}`);
+    if(rounds%3===0){buildChips();render()}
+    if(rounds%8===0&&DB)await saveCatalog(false);
+  }
+  buildChips();render();if(DB)await saveCatalog(false);
+  rs(stopRefine?`Gepauzeerd bij ${done.toLocaleString('nl-NL')} van ${total.toLocaleString('nl-NL')}. Klik opnieuw om verder te gaan.`:`Klaar: ${total.toLocaleString('nl-NL')} nummers verfijnd en bewaard.`);
+  refining=false;$('#refine').disabled=false;$('#refineStop').hidden=true;
+  if(!stopRefine)p.hidden=true;
+};
+
+/* ---------- handmatig aanpassen ---------- */
+let edId=null;
+function openEditor(id){
+  const t=T[id];edId=id;
+  $('#edT').value=t.title;$('#edA').value=t.artist;$('#edY').value=t.year||'';$('#edB').value=t.bpm||'';$('#edE').value=t.nrg||'';$('#edK').value=t.tkey||'';
+  const base=['Oldies',...GENRES];const gl=base.includes(t.genre)?base:[t.genre,...base];
+  $('#edG').innerHTML=gl.map(g=>`<option${g===t.genre?' selected':''}>${esc(g)}</option>`).join('');
+  $('#edM').innerHTML=Object.keys(MOODS).map(m=>`<option${m===t.mood?' selected':''}>${esc(m)}</option>`).join('');
+  $('#edD').innerHTML=DAYPARTS.map(d=>`<label><input type="checkbox" value="${d}"${t.dayparts.includes(d)?' checked':''}>${d}</label>`).join('');
+  $('#edS').innerHTML=SPECIALS.map(d=>`<label><input type="checkbox" value="${esc(d)}"${t.special.includes(d)?' checked':''}>${esc(d)}</label>`).join('');
+  $('#ed').showModal();
+}
+$('#ed').addEventListener('close',()=>{
+  if($('#ed').returnValue!=='ok'||edId===null)return;
+  const t=T[edId];
+  t.title=$('#edT').value.trim()||t.title;t.artist=$('#edA').value.trim()||t.artist;
+  t.year=+$('#edY').value||0;t.bpm=+$('#edB').value||0;t.genre=$('#edG').value;t.mood=$('#edM').value;
+  {const e=Math.round(+$('#edE').value);t.nrg=e>=1&&e<=10?e:0;t.tkey=toCamelot($('#edK').value)}
+  t.dayparts=[...$('#edD').querySelectorAll('input:checked')].map(i=>i.value);
+  t.special=[...$('#edS').querySelectorAll('input:checked')].map(i=>i.value);
+  t.src='h';edId=null;buildChips();render();toast('Aangepast');
+  if(!t.key.startsWith('demo:'))queueSave();
+});
+
+/* ---------- speelhistorie uit oude speellijsten ---------- */
+$('#impList').onclick=()=>$('#inList').click();
+$('#inList').onchange=async e=>{
+  const files=[...e.target.files];if(!files.length)return;
+  const byBase=new Map(),byName=new Map();
+  T.forEach(t=>{const b=norm(t.key.split('/').pop().replace(/\.[^.]+$/,''));if(b)byBase.set(b,t);byName.set(norm(t.artist+t.title),t);byName.set(norm(t.title),byName.get(norm(t.title))||t)});
+  const dateIn=s=>{let m=s.match(/(19|20)(\d\d)[-_.]?(\d\d)[-_.]?(\d\d)/);if(m)return `${m[1]}${m[2]}-${m[3]}-${m[4]}`;m=s.match(/(\d\d)[-_.](\d\d)[-_.]((19|20)\d\d)/);return m?`${m[3]}-${m[2]}-${m[1]}`:null};
+  let hits=0,lines=0;
+  for(const f of files){
+    const fileDate=dateIn(f.name)||new Date(f.lastModified).toISOString().slice(0,10);
+    for(let line of (await f.text()).split(/\r?\n/)){
+      line=line.trim();if(!line||line.startsWith('#'))continue;lines++;
+      const date=dateIn(line)||fileDate;
+      const base=norm(line.split(/[\\/]/).pop().replace(/\.(mp3|m4a|wav|flac|aac)\b.*$/i,''));
+      let t=byBase.get(base);
+      if(!t){const n=norm(line.replace(/\d{4}-\d\d-\d\d|\d\d[-.]\d\d[-.]\d{4}|\d\d:\d\d(:\d\d)?/g,''));t=byName.get(n);if(!t){for(const [k,v] of byName){if(k.length>=8&&n.includes(k)){t=v;break}}}}
+      if(!t)continue;
+      if(!t.plays.includes(date)){t.plays=[...t.plays,date].sort().reverse();t.last=new Date(t.plays[0]);t.days=Math.round((TODAY-t.last)/864e5)}
+      hits++;
+    }
+  }
+  render();toast(`${hits.toLocaleString('nl-NL')} van ${lines.toLocaleString('nl-NL')} regels herkend en bijgeschreven`);
+  if(hits)queueSave();e.target.value='';
+};
+
+/* ---------- uitzendmoment ---------- */
+const partOf=h=>h>=6&&h<10?'Ochtend':h>=10&&h<14?'Middag':h>=14&&h<18?'Namiddag':h>=18&&h<22?'Avond':'Nacht';
+function slotLabel(){
+  const d=$('#airDate').value?new Date($('#airDate').value+'T12:00'):new Date();
+  const h=+($('#airTime').value||'09:00').slice(0,2);
+  const day=d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
+  return `${day.charAt(0).toUpperCase()+day.slice(1)} · ${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00 · ${partOf(h)}`;
+}
+function updateSlot(){$('#slotLabel').textContent=slotLabel()}
+$('#airDate').value=new Date().toLocaleDateString('sv-SE');
+$('#airDate').onchange=$('#airTime').onchange=updateSlot;updateSlot();
+
+/* ---------- mp3's kopiëren naar een map ---------- */
+const safe=s=>String(s).replace(/[\/\\:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().slice(0,90);
+$('#zipMp3').onclick=async()=>{
+  const b=$('#zipMp3');
+  if(!state.run.length){toast('Het draaiboek is nog leeg');return}
+  const items=state.run.map(id=>T[id]);const missing=items.filter(t=>!t.file);
+  if(missing.length===items.length){toast('Koppel eerst je muziekmap; zonder bestanden valt er niets te kopiëren');return}
+  if(!NATIVE&&!window.JSZip){toast('Het inpakhulpmiddel kon niet laden. Herlaad de pagina.');return}
+  if(!NATIVE&&!DL){toast('Bestanden opslaan kan in deze weergave niet');return}
+  b.disabled=true;
+  try{
+    const date=$('#airDate').value||new Date().toLocaleDateString('sv-SE');
+    const dd=new Date(date+'T12:00');const dn=dd.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const folder=dn.charAt(0).toUpperCase()+dn.slice(1);
+    if(NATIVE){
+      const files=[],m3u=['#EXTM3U'],sheet=[slotLabel(),''];let n=0,at=0;
+      for(const t of items){
+        const time=`:${String(Math.floor(at/60)).padStart(2,'0')}`;at+=t.dur||0;
+        if(!t.file){sheet.push(`${time}  ${t.artist} – ${t.title}  (bestand ontbreekt)`);continue}
+        n++;const ext=(t.file.name.match(/\.[^.]+$/)||['.mp3'])[0];
+        const name=`${String(n).padStart(2,'0')} - ${safe(t.artist)} - ${safe(t.title)}${ext}`;
+        files.push({src:t.file.path,name});m3u.push(`#EXTINF:${t.dur||-1},${t.artist} - ${t.title}`,name);
+        sheet.push(`${time}  ${t.artist} – ${t.title} (${mmss(t.dur)})`);
+      }
+      b.textContent='Kopiëren…';
+      const dest=await bridge('copyToDesktop',{folder,files,extra:[{name:folder+'.m3u',text:m3u.join('\n')},{name:'Draaiboek.txt',text:sheet.join('\n')}]});
+      toast(`${n} mp3's gekopieerd naar "${dest}" op je bureaublad`+(missing.length?`, ${missing.length} zonder bestand overgeslagen`:''));
+      b.disabled=false;b.textContent="Kopieer mp3's naar een map";return;
+    }
+    const zip=new JSZip();const dir=zip.folder(folder);
+    let n=0,at=0;const m3u=['#EXTM3U'],sheet=[slotLabel(),''];
+    for(const t of items){
+      const time=`:${String(Math.floor(at/60)).padStart(2,'0')}`;at+=t.dur||0;
+      if(!t.file){sheet.push(`${time}  ${t.artist} – ${t.title}  (bestand ontbreekt)`);continue}
+      n++;const ext=(t.file.name.match(/\.[^.]+$/)||['.mp3'])[0];
+      const name=`${String(n).padStart(2,'0')} - ${safe(t.artist)} - ${safe(t.title)}${ext}`;
+      b.textContent=`Kopiëren… ${n} van ${items.length}`;
+      dir.file(name,await t.file.arrayBuffer(),{binary:true});
+      m3u.push(`#EXTINF:${t.dur||-1},${t.artist} - ${t.title}`,name);
+      sheet.push(`${time}  ${t.artist} – ${t.title} (${mmss(t.dur)})`);
+    }
+    dir.file(`${folder}.m3u`,m3u.join('\n'));
+    dir.file('Draaiboek.txt',sheet.join('\n'));
+    b.textContent='Inpakken…';
+    const blob=await zip.generateAsync({type:'blob',compression:'STORE'});
+    await DL.save({filename:`${folder}.zip`,data:blob});
+    toast(missing.length?`${n} mp3's gekopieerd, ${missing.length} zonder bestand overgeslagen`:`${n} mp3's gekopieerd naar "${folder}"`);
+  }catch(e){toast(e&&e.code==='declined'?'Opslaan geannuleerd':'Kopiëren is niet gelukt. Probeer het nog eens.')}
+  b.disabled=false;b.textContent="Kopieer mp3's naar een map";
+};
+
+/* ---------- links uit de handleiding: curiousxxl://ga|doe|filter ---------- */
+const LINK_TARGETS={dagdeel:'#fDaypart',sfeer:'#fMood',genre:'#fGenre',decennium:'#fDecade',kalender:'#fCal',thema:'#fTheme',rotatie:'#hideRecent',toonsoort:'#harm',
+  kolommen:'thead',tempo:'thead th[data-sort="bpm"]',energiekolom:'thead th[data-sort="nrg"]',sfeerkolom:'thead th[data-sort="mood"]',dagdeelkolom:'thead th:nth-child(7)',gedraaid:'thead th[data-sort="plays"]',laatst:'thead th[data-sort="last"]',
+  afspelen:'#rows tr .play',bewerken:'#rows tr [data-edit]',inhetuur:'#rows tr [data-id]',positie:'.seek',snelknoppen:'.cues',
+  energieverloop:'#curveBox',praattijd:'#talk',bewaardeuren:'#hours',muziektijd:'.clock',
+  opbouw:'.shape',energie:'#fNrg',duur:'#fDur',over:'#sec-over',muziekmap:'#drop',bewaren:'#sec-bewaren',indelen:'#sec-indelen',filters:'#sec-filters',catalogus:'#sec-catalogus',uur:'#sec-uur',draaiboek:'#run',klok:'.clock',speler:'#player',zoeken:'#q'};
+const LINK_ACTIONS={koppel:'#pickDir',bewaar:'#saveCat',export:'#expCsv',backup:'#expJson',terugzetten:'#impJson',speellijsten:'#impList',verfijn:'#refine',vul:'#fill',leeg:'#clear',kopieer:'#zipMp3',draaiboek:'#copy',bewaaruur:'#saveHour',uitgezonden:'#aired',wis:'#reset'};
+function flashEl(el){if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1700)}
+function applyFilterLink(q){
+  ['daypart','mood','genre','special','decade','dur','nrg'].forEach(k=>state[k].clear());state.q='';$('#q').value='';
+  const DURL={kort:DUR_B[0][0],'3-4':DUR_B[1][0],'4-5':DUR_B[2][0],lang:DUR_B[3][0]},NRGL={laag:NRG_B[0][0],midden:NRG_B[1][0],hoog:NRG_B[2][0],piek:NRG_B[3][0]};
+  for(const v of (q.get('duur')||'').split(',').filter(Boolean))if(DURL[v])state.dur.add(DURL[v]);
+  for(const v of (q.get('energie')||'').split(',').filter(Boolean))if(NRGL[v])state.nrg.add(NRGL[v]);
+  if(q.get('harmonisch')==='1'){state.harm=true;$('#harm').checked=true}
+  const map={dagdeel:'daypart',sfeer:'mood',genre:'genre',dag:'special',thema:'special',decennium:'decade'};
+  for(const [k,v] of q.entries()){if(k==='zoek'){state.q=v;$('#q').value=v}else if(map[k])v.split(',').forEach(x=>state[map[k]].add(x.trim()))}
+  if(q.get('rust')==='1'){state.hideRecent=true;$('#hideRecent').checked=true}
+  state.limit=200;buildChips();render();flashEl($('#sec-catalogus'));
+}
+window.__pxxlLink=url=>{
+  try{
+    const u=new URL(url);const kind=(u.host||'').toLowerCase();const what=decodeURIComponent((u.pathname||'').replace(/^\/+|\/+$/g,'')).toLowerCase();
+    if(kind==='ga'){
+      let el=$(LINK_TARGETS[what]||'#sec-catalogus');
+      if(el&&el.matches('input[type=checkbox],input[type=range]'))el=el.closest('label,.budget')||el;
+      // onzichtbaar (speler dicht, uur nog leeg)? Dan het zichtbare onderdeel eromheen
+      while(el&&!el.getClientRects().length)el=el.parentElement;
+      if(!el||el===document.body)el=$('#sec-catalogus');
+      flashEl(el);if(what==='zoeken')$('#q').focus();return}
+    if(kind==='doe'){const sh=u.searchParams.get('opbouw');if(sh&&SHAPES.hasOwnProperty(sh)){state.shape=sh;$('#shape').value=sh;flashEl($('#shape'))}
+      const b=$(LINK_ACTIONS[what]);if(b&&!b.hidden){flashEl(b);setTimeout(()=>b.click(),450)}else toast('Deze knop is hier niet beschikbaar');return}
+    if(kind==='filter'){applyFilterLink(u.searchParams);return}
+    flashEl($('#sec-catalogus'));
+  }catch(e){toast('Deze link kon de app niet lezen')}
+};
+
+/* opslag starten */
+function nativeDB(store){
+  let timer=null;const listeners=[];
+  const persist=()=>{clearTimeout(timer);timer=setTimeout(()=>bridge('storeSave',{data:JSON.stringify(store)}).catch(()=>toast('Opslaan op de Mac is niet gelukt')),400)};
+  const fire=()=>listeners.forEach(l=>l());
+  const snap=(id,data)=>({id,exists:data!==undefined,data:()=>data,metadata:{fromCache:false,hasPendingWrites:false}});
+  const doc=path=>({id:path.split('/').pop(),path,
+    get:async()=>snap(path.split('/').pop(),store[path]),
+    set:async d=>{store[path]=JSON.parse(JSON.stringify(d));persist();fire()},
+    update:async d=>{if(store[path]===undefined)throw{code:'invalid_argument'};Object.assign(store[path],JSON.parse(JSON.stringify(d)));persist();fire()},
+    delete:async()=>{delete store[path];persist();fire()}});
+  const collection=name=>{let ord=null,lim=1e9;const depth=name.split('/').length+1;const q={
+    doc:id=>doc(name+'/'+(id||Date.now().toString(36)+Math.random().toString(36).slice(2,8))),
+    add:async d=>{const r=q.doc();await r.set(d);return r},
+    orderBy:(f,dir)=>{ord=[f,dir];return q},limit:n=>{lim=n;return q},
+    now:()=>{let ds=Object.keys(store).filter(k=>k.startsWith(name+'/')&&k.split('/').length===depth).map(k=>snap(k.split('/').pop(),store[k]));
+      if(ord)ds.sort((a,b)=>{const x=a.data()[ord[0]],y=b.data()[ord[0]];return(x>y?1:x<y?-1:0)*(ord[1]==='desc'?-1:1)});return ds.slice(0,lim)},
+    get:async()=>{const d=q.now();return{docs:d,size:d.length,empty:!d.length}},
+    onSnapshot:cb=>{const l=()=>{const d=q.now();cb({docs:d,size:d.length,empty:!d.length})};listeners.push(l);l();return()=>{}}};return q};
+  return{doc,collection};
+}
+async function nativeLink(choose){
+  let root=null;try{const s=await DB.doc('meta/folder').get();root=s.exists?s.data().root:null}catch(e){}
+  if(choose||!root){root=await bridge('chooseFolder',{start:root||'~/Music/MP3'});if(!root)return;await DB.doc('meta/folder').set({root})}
+  setStatus('Je muziekmap wordt gelezen…');
+  let list;try{list=await bridge('scan',{root})}catch(e){setStatus('De map kon niet worden gelezen. Klik op Koppel muziekmap om hem opnieuw te kiezen.');return}
+  const base=root.replace(/\/+$/,'').split('/').pop();
+  ingest(list.map(x=>({name:x.rel.split('/').pop(),webkitRelativePath:base+'/'+x.rel,path:x.path,native:true})));
+}
+(async()=>{
+  if(NATIVE){
+    let raw=null;try{raw=await bridge('storeLoad')}catch(e){}
+    let store={};try{store=raw?JSON.parse(raw):{}}catch(e){}
+    DB=nativeDB(store);
+    DL={save:async({filename,data})=>{const ok=await bridge('saveFile',{name:filename,text:typeof data==='string'?data:''});if(!ok)throw{code:'declined'}}};
+    SAMPLE={json:async prompt=>{const txt=await bridge('claude',{prompt});const m=String(txt||'').match(/\[[\s\S]*\]/);if(!m)throw{code:'invalid_json'};return JSON.parse(m[0])}};
+    $('#pickFiles').hidden=true;
+    document.querySelector('#drop p').textContent='Je muziekmap wordt bij elke start vanzelf gekoppeld. Kies hier een andere map als dat nodig is. Alles blijft op je eigen computer.';
+    $('#zipNote').textContent='De nummers worden gekopieerd naar een map met de naam van de uitzenddag op je bureaublad. Je originelen blijven staan.';
+    $('#refineInfo').textContent='Nieuwe nummers krijgen direct een eerste indeling op genre en titel (≈). Claude verfijnt daarna sfeer, dagdelen, speciale dagen, jaar en tempo via je eigen Claude-account op deze computer (✦).';
+    DB.collection('hours').orderBy('savedAt','desc').limit(100).onSnapshot(s=>{hours=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderHours()});
+    await loadCatalog();
+    nativeLink(false);
+    return;
+  }
+  if(!window.claude||!claude.use){setSave('Bewaren werkt alleen in de gepubliceerde pagina.');return}
+  [DB,DL,SAMPLE]=await Promise.all([claude.use('db'),claude.use('downloads'),claude.use('sample')]);
+  if(!SAMPLE){$('#refine').hidden=true;$('#refineInfo').textContent='Nieuwe nummers krijgen een eerste indeling op genre en titel (≈). Verfijnen door Claude is in deze weergave niet beschikbaar.'}
+  if(!DL){$('#expCsv').hidden=$('#expJson').hidden=true}
+  if(!DB){setSave('Bewaren is in deze weergave niet beschikbaar. Gebruik de back-up.');$('#saveCat').hidden=$('#saveHour').hidden=$('#hours').hidden=true;return}
+  DB.collection('hours').orderBy('savedAt','desc').limit(100).onSnapshot(s=>{hours=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderHours()},()=>{});
+  loadCatalog();
+})();
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+
+/* ---------- start ---------- */
+state.daypart.add('Ochtend');
+state.run=[7,0,32,16,23,30];
+buildChips();render();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderRun);
+new MutationObserver(renderRun).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>

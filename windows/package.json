@@ -1,0 +1,76 @@
+{
+  "name": "curious-xxl",
+  "version": "1.2.0",
+  "description": "CURIOUS XXL — radio-uren samenstellen uit je mp3-bibliotheek",
+  "main": "main.js",
+  "scripts": {
+    "prepare": "node -e \"const f=require('fs');f.copyFileSync('../web/curious-xxl.html','index.html');f.copyFileSync('../docs/CURIOUS XXL - Handleiding.pdf','CURIOUS XXL - Handleiding.pdf')\"",
+    "start": "npm run prepare && electron .",
+    "dist": "npm run prepare && electron-builder --win portable --x64"
+  },
+  "keywords": [],
+  "author": "Han Koopman",
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "pe-library": "^1.0.1",
+    "resedit": "^2.0.3"
+  },
+  "dependencies": {
+    "music-metadata": "^7.14.0"
+  },
+  "productName": "CURIOUS XXL",
+  "build": {
+    "appId": "nl.hankoopman.playlistxxl",
+    "productName": "CURIOUS XXL",
+    "copyright": "© 2026 Han Koopman. Alle rechten voorbehouden.",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "build/icon.png",
+      "node_modules/music-metadata/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "afterPack": "./afterPack.js",
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "CURIOUS XXL.exe"
+    },
+    "extraResources": [
+      {
+        "from": "CURIOUS XXL - Handleiding.pdf",
+        "to": "CURIOUS XXL - Handleiding.pdf"
+      }
+    ],
+    "protocols": [
+      {
+        "name": "CURIOUS XXL link",
+        "schemes": [
+          "curiousxxl"
+        ]
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/an0n1mu3721-spec/curious-xxl.git"
+  },
+  "homepage": "https://github.com/an0n1mu3721-spec/curious-xxl"
+}
